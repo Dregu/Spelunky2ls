@@ -1,4 +1,4 @@
-# Spelunky tools
+# Spelunky Twools
 Spelunky 2 tools for item spawning and exploration. Most of this awesome stuff is not made by me, I just compiled it here.
 
 ## Usage
