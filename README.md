@@ -1,5 +1,5 @@
 # Spelunky tools
-Spelunky 2 tools for item spawning and exploration. Most of this awesome stuff is not made by me, I just compiled it here.
+Spelunky 2 tools for item spawning and exploration. Most of this awesome stuff is not made by me, I just compiled it here. Run these after the title screen.
 
 ## spawnserver.py
 Spawn any item. Webgui at http://localhost:5000/entities.html
