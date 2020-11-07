@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC>
+<html>
+  <head>
+    <title>Spelunky 2 Entity Viewer</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div id="wrap">
+      <div id="list" class="list-group"></div>
+      <div id="viewer">
+        <h1 name="path">Entity</h1> <button onclick="spawn()">Spawn</button> <input id=x size=2 type=number value=0> <input id=y size=2 type=number value=0>
+        <script>
+          function spawn() {
+            var x = document.getElementById('x').value
+            var y = document.getElementById('y').value
+            var id = document.querySelectorAll('td')[3].textContent
+            var xhr = new XMLHttpRequest()
+            xhr.open('POST', '/', true)
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send('x='+x+'&y='+y+'&id='+id)
+          }
+        </script>
+        <p>Properties:</p>
+        <table class="table table-sm" name="entity"></table>
+        <div name="tile"></div>
+        <p>Additonal textures:</p>
+        <ul name="additional"></ul>
+      </div>
+    </div>
+    <script type="module" src="entities.js"></script>
+    <script type="module">
+      import entities from "./entities.js";
+      onload = entities.main;
+    </script>
+  </body>
+</html>

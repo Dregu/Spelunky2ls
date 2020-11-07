@@ -1,0 +1,80 @@
+body {
+  font-family: AppleGothic, "Segoe UI", sans-serif;
+  -webkit-transform : translate3d(0,0,0);
+}
+#wrap {
+  height: 100%;
+}
+#list {
+  width: 25%;
+  float: left;
+  font-size: 12px;
+}
+.tiles {
+  float: right;
+  padding-right: 8px;
+  background: #fff;
+  font-family: Consolas, monospace;
+}
+#viewer {
+  flex-grow: 1;
+}
+#list,
+#viewer {
+  overflow-y: scroll;
+  height: 100%;
+}
+.scene {
+  position: relative;
+  background-color: #eee;
+  background-image: url(Textures/bg_cave.png);
+}
+.tile {
+  position: absolute;
+  word-break: break-all;
+  color: #eee;
+  font-size: 8px;
+  display: block;
+  box-sizing: content-box;
+  z-index: 2;
+}
+svg rect.ref {
+  fill: rgba(200, 230, 255, 0.5);
+  stroke: 1px solid #111;
+  cursor: pointer;
+}
+.tile.separator {
+  fill: #fff;
+}
+.tile.separator:hover {
+  outline: none;
+  margin: 0px;
+}
+.tile:hover {
+  outline: 1px solid #ccc;
+}
+.tile rect {
+  fill: transparent;
+  stroke: transparent;
+}
+.tile text {
+  dominant-baseline: hanging;
+  fill: white;
+}
+h1 {
+  padding-top: 16px;
+}
+h2 {
+  border-top: 1px solid #ccc;
+  margin-top: 32px;
+  padding-top: 16px;
+}
+textarea[name="metadata"] {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+div[name="tile"] img {
+  max-width: 100%;
+}
