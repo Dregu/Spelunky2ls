@@ -9,7 +9,7 @@ Up/Down to select entity | Ctrl+Arrows to change position | Enter to spawn
 556 0,0 > jetpack_
 ```
 ## Usage
-Get https://rustup.rs/ and https://nodejs.org/en/. Start the game, go to camp and run:
+Get https://rustup.rs/ and https://nodejs.org/. Start the game, go to camp and run:
 ```
 cargo build
 node cli
