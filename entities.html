@@ -27,20 +27,11 @@
   </head>
   <body>
     <div id="wrap">
+      <input type="text" id="filter" size="10" onkeydown="key(event)" oninput="filter(event)">Filter the list, up/down to select item, enter to spawn selected
       <div id="list" class="list-group"></div>
       <div id="viewer">
-        <h1 name="path">Entity</h1> <button onclick="spawn()">Spawn</button> <input id=x size=2 type=number value=0> <input id=y size=2 type=number value=0>
-        <script>
-          function spawn() {
-            var x = document.getElementById('x').value
-            var y = document.getElementById('y').value
-            var id = document.querySelectorAll('td')[3].textContent
-            var xhr = new XMLHttpRequest()
-            xhr.open('POST', '/', true)
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send('x='+x+'&y='+y+'&id='+id)
-          }
-        </script>
+        <h1 name="path">Entity</h1>
+        <button onclick="spawn()">Spawn</button><input id="x" size="2" type="number" value="0"><input id="y" size="2" type="number" value="0">
         <p>Properties:</p>
         <table class="table table-sm" name="entity"></table>
         <div name="tile"></div>
@@ -48,10 +39,82 @@
         <ul name="additional"></ul>
       </div>
     </div>
-    <script type="module" src="entities.js"></script>
+    <script type="module" src="spawner.js"></script>
     <script type="module">
-      import entities from "./entities.js";
+      import entities from "./spawner.js";
       onload = entities.main;
+    </script>
+    <script>
+      function spawn() {
+        var x = document.getElementById('x').value
+        var y = document.getElementById('y').value
+        var id = document.querySelectorAll('td')[3].textContent
+        var xhr = new XMLHttpRequest()
+        xhr.open('POST', '/', true)
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.send('x='+x+'&y='+y+'&id='+id)
+      }
+      function key(e) {
+        if(e.which == 13) {// enter
+          var active = document.querySelector(".item.active");
+          if(!active)
+            active = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+          if(window.location == active.href) {
+            spawn();
+          } else {
+            window.location = active.href;
+          }
+        }
+        if(e.which == 38) {//up
+          e.preventDefault();
+          var active = document.querySelector(".item.active");
+          if(!active) active = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+          var next = active.previousSibling;
+          while(next) {
+            if(next.style.display == "none")
+              next = next.previousSibling;
+            else
+              break;
+          }
+          if (next)
+            window.location = next.href;
+        }
+        if(e.which == 40) {//down
+          e.preventDefault();
+          var active = document.querySelector(".item.active");
+          if(!active) active = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+          var next = active.nextSibling;
+          while(next) {
+            if(next.style.display == "none")
+              next = next.nextSibling;
+            else
+              break;
+          }
+          if (next)
+            window.location = next.href;
+        }
+      }
+      function filter(e) {
+        var items = document.querySelectorAll(".item");
+        var q = e.target.value.toLowerCase().replace(" ", "_");
+        if(q == "") {
+          [].forEach.call(items, (item) => {
+            item.style.display = "block";
+          });
+          return;
+        }
+        [].forEach.call(items, (item) => {
+          if(item.textContent.toLowerCase().indexOf(q) !== -1) {
+            item.style.display = "block";
+          } else {
+          	item.style.display = "none";
+          }
+        });
+        var first = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+        if(first)
+          window.location = first.href;
+      }
+      document.getElementById("filter").focus();
     </script>
   </body>
 </html>
