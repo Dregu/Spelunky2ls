@@ -10,7 +10,7 @@ Spelunky 2 tools for item spawning and exploration. Most of this awesome stuff i
   - These scripts will try to hook any running executable with the name **Spel2\*.exe** so you can run this with old versions too (e.g. Spel2-1.12.1e.exe)
 
 ## spawnserver.py
-Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation
+Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation. Executable available at https://github.com/Dregu/Spelunky2ls/releases/latest
 
 ## item.py
 Ditto. `python item.py id`
