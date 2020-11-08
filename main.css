@@ -3,7 +3,8 @@ body {
   -webkit-transform : translate3d(0,0,0);
 }
 button, input {
-  font-size: 2em;
+  font-size: 1.5em;
+  width: 180px;
 }
 #wrap {
   height: 100%;
@@ -12,6 +13,9 @@ button, input {
   width: 33%;
   float: left;
   font-size: 12px;
+  height: 100vh!important;
+  max-height: 100vh!important;
+  overflow-y: scroll;
 }
 #list a {
   white-space: nowrap;

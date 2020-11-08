@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Spelunky 2 Entity Viewer</title>
@@ -31,7 +31,7 @@
       <div id="list" class="list-group"></div>
       <div id="viewer">
         <h1 name="path">Entity</h1>
-        <button onclick="spawn()">Spawn</button><input id="x" size="2" type="number" value="0"><input id="y" size="2" type="number" value="0">
+        <button onclick="spawn()">Spawn</button>X:<input id="x" size="2" type="number" value="0">Y:<input id="y" size="2" type="number" value="0"> relative to the player
         <p>Properties:</p>
         <table class="table table-sm" name="entity"></table>
         <div name="tile"></div>
@@ -76,8 +76,10 @@
             else
               break;
           }
-          if (next)
+          if (next) {
+            document.getElementById("list").scrollTop = next.offsetTop-window.innerHeight/2;
             window.location = next.href;
+          }
         }
         if(e.which == 40) {//down
           e.preventDefault();
@@ -90,8 +92,10 @@
             else
               break;
           }
-          if (next)
+          if (next) {
+            document.getElementById("list").scrollTop = next.offsetTop-window.innerHeight/2;
             window.location = next.href;
+          }
         }
       }
       function filter(e) {
