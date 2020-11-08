@@ -27,11 +27,13 @@
   </head>
   <body>
     <div id="wrap">
-      <input type="text" id="filter" size="10" onkeydown="key(event)" oninput="filter(event)">Filter the list, up/down to select item, enter to spawn selected
       <div id="list" class="list-group"></div>
       <div id="viewer">
+        <div id="search">
+          <input type="text" id="filter" placeholder="Filter the list, up/down to select item, enter to spawn selected" size="10" onkeydown="key(event)" oninput="filter(event)"><br>
+          <button onclick="spawn()">Spawn</button> X:<input id="x" size="2" type="number" value="0"> Y:<input id="y" size="2" type="number" value="0"> (relative to the player)
+        </div>
         <h1 name="path">Entity</h1>
-        <button onclick="spawn()">Spawn</button>X:<input id="x" size="2" type="number" value="0">Y:<input id="y" size="2" type="number" value="0"> relative to the player
         <p>Properties:</p>
         <table class="table table-sm" name="entity"></table>
         <div name="tile"></div>

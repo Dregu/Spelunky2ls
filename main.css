@@ -6,6 +6,9 @@ button, input {
   font-size: 1.5em;
   width: 180px;
 }
+#filter {
+  width: 100%;
+}
 #wrap {
   height: 100%;
 }
