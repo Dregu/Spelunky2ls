@@ -1,10 +1,16 @@
 import struct
 import time
 import sys
+import os
 from injectlib import Injector
-from cgi import parse_header, parse_multipart
-from http.server import SimpleHTTPRequestHandler, BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import parse_qs
+from flask import Flask, request, render_template, send_file, send_from_directory
+
+if getattr(sys, 'frozen', False):
+    template_folder = os.path.join(sys._MEIPASS, 'templates')
+    static_folder = os.path.join(sys._MEIPASS, 'static')
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+else:
+    app = Flask(__name__)
 
 def find(sep, offset=-7, type='pc', start=0):
     off = data.find(bytes.fromhex(sep), start)
@@ -43,23 +49,19 @@ load_item += base
 main_thread = proc.threads()[0]
 print(hex(state + layer_off))
 
-class Handler(SimpleHTTPRequestHandler):
-    def parse_POST(self):
-        ctype, pdict = parse_header(self.headers['content-type'])
-        if ctype == 'multipart/form-data':
-            postvars = parse_multipart(self.rfile, pdict)
-        elif ctype == 'application/x-www-form-urlencoded':
-            length = int(self.headers['content-length'])
-            postvars = parse_qs(
-                    self.rfile.read(length), 
-                    keep_blank_values=1)
-        else:
-            postvars = {}
-        return postvars
+@app.route('/Textures/<image>')
+def get_image(image):
+    try:
+        return send_file(os.path.dirname(target)+'\\Mods\\Extracted\\Data\\Textures\\'+image)
+    except FileNotFoundError:
+        return 'Not found', 404
 
-    def do_POST(self):
-        postvars = self.parse_POST()
-        print(postvars)
+@app.route('/', methods=['GET', 'POST'])
+def spawner():
+    if request.method == 'GET':
+        return render_template('index.html')
+    if request.method == 'POST':
+        postvars = request.form
 
         _, items_off = find('33 D2 8B 41 28 01', -7, 'imm')
         items = proc.r64(state + items_off)
@@ -71,9 +73,9 @@ class Handler(SimpleHTTPRequestHandler):
         # Player X, Y
         x, y = struct.unpack("<2f", proc.read(player + 0x40, 8))
 
-        x += int(postvars[b'x'][0])
-        y += int(postvars[b'y'][0])
-        spawnid = int(postvars[b'id'][0])
+        x += float(postvars['x'])
+        y += float(postvars['y'])
+        spawnid = int(postvars['id'])
 
         proc.run(rf"""
 import ctypes
@@ -106,11 +108,6 @@ except Exception as e:
     import os
     os.system("msg * \"%s\"" % e)
 """.strip().encode())
-
-Handler.extensions_map['.html'] = 'text/html'
-Handler.extensions_map['.js'] = 'text/javascript'
-Handler.extensions_map['.json'] = 'application/json'
-Handler.extensions_map['.css'] = 'text/css'
-
-server = HTTPServer(('', 5000), Handler)
-server.serve_forever()
+        return 'OK'
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)

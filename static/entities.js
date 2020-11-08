@@ -1,4 +1,4 @@
-import datasheet from "./data.js";
+import datasheet from "/static/data.js";
 const knownTiles = new Map();
 const CHUNK_SIZE = 48;
 
@@ -161,7 +161,7 @@ let entitiesMap = new Map();
 let level = null; // Level
 
 const populateList = async (dom) => {
-  entities = await json("/entities.json");
+  entities = await json("/static/entities.json");
   entities.sort((x, y) => {
     if (x.ID < y.ID)
       return -1;
