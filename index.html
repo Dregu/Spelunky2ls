@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC>
 <html>
   <head>
-    <title>Spelunky 2 Level Viewer</title>
+    <title>Spelunky 2 Entity Viewer</title>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -13,11 +13,11 @@
       integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
       crossorigin="anonymous"
     ></script>
-<!--     <script
+    <script
       src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
       integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
       crossorigin="anonymous"
-    ></script> -->
+    ></script>
     <script
       src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
       integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
@@ -27,15 +27,94 @@
   </head>
   <body>
     <div id="wrap">
+      <input type="text" id="filter" size="10" onkeydown="key(event)" oninput="filter(event)">Filter the list, up/down to select item, enter to spawn selected
       <div id="list" class="list-group"></div>
       <div id="viewer">
-        <h1 name="path">Level title</h1>
-        <p>Other metadata need to process:</p>
-        <textarea class="form-control" name="metadata"></textarea>
-        <p>Level chunks:</p>
-        <div name="level"></div>
+        <h1 name="path">Entity</h1>
+        <button onclick="spawn()">Spawn</button><input id="x" size="2" type="number" value="0"><input id="y" size="2" type="number" value="0">
+        <p>Properties:</p>
+        <table class="table table-sm" name="entity"></table>
+        <div name="tile"></div>
+        <p>Additonal textures:</p>
+        <ul name="additional"></ul>
       </div>
     </div>
-    <script type="module" src="main.js"></script>
+    <script type="module" src="spawner.js"></script>
+    <script type="module">
+      import entities from "./spawner.js";
+      onload = entities.main;
+    </script>
+    <script>
+      function spawn() {
+        var x = document.getElementById('x').value
+        var y = document.getElementById('y').value
+        var id = document.querySelectorAll('td')[3].textContent
+        var xhr = new XMLHttpRequest()
+        xhr.open('POST', '/', true)
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.send('x='+x+'&y='+y+'&id='+id)
+      }
+      function key(e) {
+        if(e.which == 13) {// enter
+          var active = document.querySelector(".item.active");
+          if(!active)
+            active = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+          if(window.location == active.href) {
+            spawn();
+          } else {
+            window.location = active.href;
+          }
+        }
+        if(e.which == 38) {//up
+          e.preventDefault();
+          var active = document.querySelector(".item.active");
+          if(!active) active = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+          var next = active.previousSibling;
+          while(next) {
+            if(next.style.display == "none")
+              next = next.previousSibling;
+            else
+              break;
+          }
+          if (next)
+            window.location = next.href;
+        }
+        if(e.which == 40) {//down
+          e.preventDefault();
+          var active = document.querySelector(".item.active");
+          if(!active) active = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+          var next = active.nextSibling;
+          while(next) {
+            if(next.style.display == "none")
+              next = next.nextSibling;
+            else
+              break;
+          }
+          if (next)
+            window.location = next.href;
+        }
+      }
+      function filter(e) {
+        var items = document.querySelectorAll(".item");
+        var q = e.target.value.toLowerCase().replace(" ", "_");
+        if(q == "") {
+          [].forEach.call(items, (item) => {
+            item.style.display = "block";
+          });
+          return;
+        }
+        [].forEach.call(items, (item) => {
+          if(item.textContent.toLowerCase().indexOf(q) !== -1) {
+            item.style.display = "block";
+          } else {
+          	item.style.display = "none";
+          }
+        });
+        var first = [...document.querySelectorAll(".item")].filter(i => i.style.display == "block")[0];
+        if(first)
+          window.location = first.href;
+      }
+      document.getElementById("filter").focus();
+    </script>
   </body>
 </html>
