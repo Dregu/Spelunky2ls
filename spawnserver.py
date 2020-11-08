@@ -107,5 +107,10 @@ except Exception as e:
     os.system("msg * \"%s\"" % e)
 """.strip().encode())
 
+Handler.extensions_map['.html'] = 'text/html'
+Handler.extensions_map['.js'] = 'text/javascript'
+Handler.extensions_map['.json'] = 'application/json'
+Handler.extensions_map['.css'] = 'text/css'
+
 server = HTTPServer(('', 5000), Handler)
 server.serve_forever()
