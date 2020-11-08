@@ -14,7 +14,8 @@ for(let e of entities) {
 	ents.push(e['ID'].toString().padStart(3, '0')+': '+e.Name)
 }
 ents.sort();
-var input = '', id = 0, sid = 0, dx = 0, dy = 0
+var input = '', id = 0, sid = 0, dx = 0, dy = 0, help = "Arrows = Select | ^Arrows = x,y | Enter = Spawn | ^W Erase Word | ^C Quit"
+console.log(help)
 process.stdout.write(sid+" "+dx+","+dy+" > "+input)
 process.stdin.on('keypress', (str, key) => {
 	if (key && key.ctrl && key.name == 'c') process.exit()
@@ -31,6 +32,12 @@ process.stdin.on('keypress', (str, key) => {
 			dx++
 		} else if(key.name == 'left') {
 			dx--
+		} else if(key.name == 'w') {
+			let inputs = input.trim().split(' ')
+			inputs.pop()
+			input = inputs.join(' ')+' '
+			if(input == ' ') input = ''
+			search = true
 		}
 	} else if(key.name == 'return') {
 		client.send(sid+' '+dx+' '+dy+'\n', 5001, 'localhost')
@@ -51,7 +58,7 @@ process.stdin.on('keypress', (str, key) => {
 	if(search) {
 		results = ents.filter((ent) => {
 			if(input.length == 0) return true
-			const words = input.split(' ')
+			const words = input.trim().split(' ')
 			for(let word of words) {
 				if(ent.toLowerCase().indexOf(word.toLowerCase()) === -1) {
 					return false
@@ -61,7 +68,7 @@ process.stdin.on('keypress', (str, key) => {
 		})
 		id = 0
 	}
-	console.log("Up/Down to select entity | Ctrl+Arrows to change position | Enter to spawn")
+	console.log(help)
 	for(var i = 0; i < results.length; i++) {
 		const r = results[i].split(': ')
 		const rid = parseInt(r[0])
