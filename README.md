@@ -7,7 +7,7 @@ Spelunky 2 tools for item spawning and exploration. Most of this awesome stuff i
   - Run scripts after the game is running
 
 ## spawnserver.py
-Spawn any item. Webgui at http://localhost:5000/entities.html
+Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation
 
 ## item.py
 Ditto. `python item.py id`
