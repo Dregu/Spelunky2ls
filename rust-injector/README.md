@@ -1,12 +1,14 @@
 # Experimental rust injector and node cli
 It's lightning fast, you can use it over ssh, but it has some other issues. Once again I just made the cli, injector by iojonmbnmb.
 ```
-Up/Down to select entity | Ctrl+Arrows to change position | Enter to spawn
- > 556: ENT_TYPE_ITEM_JETPACK
-   557: ENT_TYPE_ITEM_JETPACK_MECH
-   558: ENT_TYPE_ITEM_PURCHASABLE_JETPACK
-   646: ENT_TYPE_FX_JETPACKFLAME
-556 0,0 > jetpack_
+Arrows = Select | ^Arrows = x,y | Enter = Spawn | ^W Erase Word | ^C Quit
+   502: ENT_TYPE_ITEM_PICKUP_ROPE
+   503: ENT_TYPE_ITEM_PICKUP_ROPEPILE
+   506: ENT_TYPE_ITEM_PICKUP_ROYALJELLY
+ > 525: ENT_TYPE_ITEM_PICKUP_CROWN
+   526: ENT_TYPE_ITEM_PICKUP_EGGPLANTCROWN
+   527: ENT_TYPE_ITEM_PICKUP_TRUECROWN
+525 0,0 > pickup ro_
 ```
 ## Usage
 Get https://rustup.rs/ and https://nodejs.org/. Start the game, go to camp and run:
