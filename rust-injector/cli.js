@@ -11,7 +11,7 @@ process.stdin.setEncoding('utf8')
 console.clear()
 var ents = [], results = []
 for(let e of entities) {
-	ents.push(e['ID'].toString().padStart(3, '0')+': '+e.Name)
+	ents.push(e['ID'].toString().padStart(3, '0')+': '+e.Name.replace('ENT_TYPE_', ''))
 }
 ents.sort();
 results = ents;
