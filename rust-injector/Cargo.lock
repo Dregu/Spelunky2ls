@@ -335,6 +335,7 @@ dependencies = [
  "hex-literal",
  "log",
  "memmem",
+ "regex",
  "sysinfo",
  "tempfile",
  "winapi",

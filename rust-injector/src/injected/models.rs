@@ -88,16 +88,18 @@ impl<'a> Player<'a> {
         // "overlay" exists if player is riding something / etc
         let (mut x, mut y) = (0.0, 0.0);
         let overlay = self.pointer;
-        loop {
-            let (_x, _y) = (
-                self.memory.f32(overlay + 0x40),
-                self.memory.f32(overlay + 0x44),
-            );
-            x += _x;
-            y += _y;
-            let overlay = self.memory.r64(overlay + 0x10);
-            if overlay == 0 {
-                break;
+        if overlay != 0 {
+            loop {
+                let (_x, _y) = (
+                    self.memory.f32(overlay + 0x40),
+                    self.memory.f32(overlay + 0x44),
+                );
+                x += _x;
+                y += _y;
+                let overlay = self.memory.r64(overlay + 0x10);
+                if overlay == 0 {
+                    break;
+                }
             }
         }
         (x, y)

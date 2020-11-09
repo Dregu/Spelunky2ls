@@ -16,6 +16,7 @@ use winapi::um::processthreadsapi::{CreateRemoteThread, OpenProcess};
 use winapi::um::synchapi::*;
 use winapi::um::winbase::INFINITE;
 use winapi::um::winnt::{HANDLE, MEM_COMMIT, PROCESS_ALL_ACCESS};
+use regex::Regex;
 
 unsafe fn alloc(proc: &Process, size: usize) -> LPVOID {
     let res = VirtualAllocEx(
@@ -92,6 +93,30 @@ pub unsafe fn find_process(name: &str) -> Option<Process> {
 
     for (pid, proc_) in system.get_processes() {
         if proc_.name().to_lowercase() == name.to_lowercase() {
+            let handle = OpenProcess(PROCESS_ALL_ACCESS, 0, *pid as u32);
+            return Some(Process {
+                handle: handle,
+                pid: *pid,
+            });
+        }
+    }
+
+    None
+}
+
+#[allow(dead_code)]
+pub unsafe fn find_process_re(name: &str) -> Option<Process> {
+    let mut system = sysinfo::System::new_all();
+    log::debug!("Refreshing the process list...");
+    system.refresh_processes();
+
+    log::debug!(
+        "Iterating through {} processes...",
+        system.get_processes().len()
+    );
+    let re = Regex::new(name).unwrap();
+    for (pid, proc_) in system.get_processes() {
+        if re.is_match(proc_.name().to_lowercase().as_str()) {
             let handle = OpenProcess(PROCESS_ALL_ACCESS, 0, *pid as u32);
             return Some(Process {
                 handle: handle,
