@@ -10,10 +10,10 @@ Spelunky 2 tools for item spawning and exploration. Most of this awesome stuff i
   - These scripts will try to hook any running executable with the name **Spel2\*.exe** so you can run this with old versions too (e.g. Spel2-1.12.1e.exe)
 
 ## rust-injector/
-Console version with a minimal UI made with nodejs and rust.
+Console version with a minimal UI made with nodejs and rust. Executable available at https://github.com/Dregu/Spelunky2ls/releases/tag/1.0. **<- This is the one you should get if you're lost**
 
 ## spawnserver.py
-Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation. Executable available at https://github.com/Dregu/Spelunky2ls/releases/latest
+Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation. Executable available at https://github.com/Dregu/Spelunky2ls/releases/tag/0.4
 
 ## item.py
 Ditto. `python item.py id`
