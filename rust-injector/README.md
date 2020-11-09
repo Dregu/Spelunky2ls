@@ -28,3 +28,4 @@ You can now start the game before or after running the cli or even restart the g
 npm i -g pkg
 pkg . --targets win
 ```
+Note: injector.exe and injected.dll are not packaged inside the exe, you need those in the directory too to run spelynky2-cli.exe.
