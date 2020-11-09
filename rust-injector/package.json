@@ -1,0 +1,20 @@
+{
+  "name": "spelunky2ls-cli",
+  "version": "1.0.0",
+  "description": "It's lightning fast and you can use it over ssh. Once again I just made the cli, injector by iojonmbnmb.\r <pre>\r (Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit\r    425: ITEM_CLONEGUNSHOT\r    565: ITEM_WEBGUN\r <b> &gt; 566: ITEM_SHOTGUN</b>\r    578: ITEM_CLONEGUN\r 566 0,0 > item gun_\r </pre>\r ## Usage\r Install https://rustup.rs/ and https://nodejs.org/ (you'll want to check the build tools during installation too). Extract the rust project somewhere and run in `cmd`:\r ```\r cd c:\\where\\ever\\you\\extracted\\rust-injector\\\r cargo build\r node cli\r ```\r You can now start the game before or after running the cli or even restart the game and it should get injected all the same...",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dregu/Spelunky2ls.git"
+  },
+  "author": "Dregu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dregu/Spelunky2ls/issues"
+  },
+  "homepage": "https://github.com/Dregu/Spelunky2ls#readme",
+  "bin": "cli.js"
+}

@@ -4,11 +4,13 @@ const entities = require('./entities.json')
 const udp = require('dgram')
 const client = udp.createSocket('udp4')
 const readline = require('readline')
+const path = require('path')
 readline.emitKeypressEvents(process.stdin)
 process.stdin.setRawMode(true)
 process.stdin.resume()
 process.stdin.setEncoding('utf8')
 console.clear()
+var injector = 'injector.exe'
 var running = false, pid = 0, status = ''
 const inject = () => {
 	exec('tasklist', (err, stdout, stderr) => {
@@ -19,7 +21,9 @@ const inject = () => {
 				pid = newpid
 				status = (new Date).toLocaleTimeString('is')+' \x1b[33mFound new Spel2.exe process, injecting...\x1b[0m'
 				update()
-				exec('target\\debug\\main.exe', (err, stdout, stderr) => {
+				exec(injector, (err, stdout, stderr) => {
+					status = (new Date).toLocaleTimeString('is')+' \x1b[31mRunning '+injector+'\x1b[0m'
+					update()
 					if(err) {
 						(new Date).toLocaleTimeString('is')+' \x1b[31mError injecting: '+err.toString()+'\x1b[0m'
 					} else {

@@ -13,6 +13,8 @@ Install https://rustup.rs/ and https://nodejs.org/ (you'll want to check the bui
 ```
 cd c:\where\ever\you\extracted\rust-injector\
 cargo build
+copy target\debug\injector.exe .
+copy target\debug\injected.dll .
 node cli
 ```
 You can now start the game before or after running the cli or even restart the game and it should get injected all the same...
