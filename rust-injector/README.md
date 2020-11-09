@@ -11,6 +11,8 @@ It's lightning fast and you can use it over ssh. Once again I just made the cli,
 ## Usage
 ### Binary
 https://github.com/Dregu/Spelunky2ls/releases/tag/1.0
+
+Run it.
 ### From source
 Install https://rustup.rs/ and https://nodejs.org/ (you'll want to check the build tools during installation too). Extract the rust project somewhere and run in `cmd`:
 ```
