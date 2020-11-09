@@ -1,5 +1,5 @@
-# Experimental rust injector and node cli item spawner
-It's lightning fast, you can use it over ssh. Once again I just made the cli, injector by iojonmbnmb.
+# Command line item spawner
+It's lightning fast and you can use it over ssh. Once again I just made the cli, injector by iojonmbnmb.
 <pre>
 (Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit
    425: ITEM_CLONEGUNSHOT
@@ -9,7 +9,7 @@ It's lightning fast, you can use it over ssh. Once again I just made the cli, in
 566 0,0 > item gun_
 </pre>
 ## Usage
-Get https://rustup.rs/ and https://nodejs.org/. Start the game and run where you extracted the rust project:
+Get https://rustup.rs/ and https://nodejs.org/. Start the game, extract the rust project and run in /rust-injector:
 ```
 cargo build
 node cli
