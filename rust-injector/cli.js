@@ -85,7 +85,7 @@ const update = (str, key) => {
 	}
 	var listlen = 0
 	for(var i = parseInt(id-y/2+2) < 0 ? 0 : (id > results.length-y/2 ? parseInt(id-y/2+2-(y/2-(results.length-id))) : parseInt(id-y/2+2)); i < results.length; i++) {
-		console.log((i == id?" > ":"   ")+results[i])
+		console.log((i == id?"\x1b[1m > ":"   ")+results[i]+"\x1b[0m")
 		if(listlen++ > y-4) break
 	}
 	process.stdout.write(sid+" "+dx+","+dy+" > "+input)
