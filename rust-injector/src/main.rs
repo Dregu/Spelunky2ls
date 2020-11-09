@@ -35,11 +35,6 @@ fn main() {
             Some(proc) => {
                 log::info!("Found spelunky 2 PID: {}", proc.pid);
                 inject_dll(&proc, temp_path.to_str().unwrap());
-                call(
-                    &proc,
-                    find_function(temp_path.to_str().unwrap(), "main"),
-                    std::ptr::null_mut(),
-                );
             }
         }
     }
