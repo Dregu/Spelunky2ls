@@ -14,5 +14,5 @@ Get https://rustup.rs/ and https://nodejs.org/. Start the game, go to camp and r
 cargo build
 node cli
 ```
-## TODO
+## Issues
 <a name="foot1">1</a>: You can't exit the game. Too bad!
