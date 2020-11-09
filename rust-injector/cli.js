@@ -22,19 +22,17 @@ const inject = () => {
 				status = (new Date).toLocaleTimeString('is')+' \x1b[33mFound new Spel2.exe process, injecting...\x1b[0m'
 				update()
 				exec(injector, (err, stdout, stderr) => {
-					status = (new Date).toLocaleTimeString('is')+' \x1b[31mRunning '+injector+'\x1b[0m'
-					update()
 					if(err) {
 						(new Date).toLocaleTimeString('is')+' \x1b[31mError injecting: '+err.toString()+'\x1b[0m'
 					} else {
-						status = (new Date).toLocaleTimeString('is')+' \x1b[32mSpel2.exe pid '+pid+' injected!\x1b[0m'
+						status = (new Date).toLocaleTimeString('is')+' \x1b[32mSpel2.exe process id '+pid+' injected!\x1b[0m'
 						running = true
 					}
 					update()
 				})
 			}
 		} else {
-			status = (new Date).toLocaleTimeString('is')+' \x1b[31mSpel2.exe not found :(\x1b[0m'
+			status = (new Date).toLocaleTimeString('is')+' \x1b[31mSpel2.exe process not found :(\x1b[0m'
 			update()
 			running = false
 		}
@@ -80,7 +78,7 @@ const update = (str, key) => {
 				client.send(cmd+'\n', 5001, 'localhost')
 				status = (new Date).toLocaleTimeString('is')+' \x1b[32mCommand '+cmd+' sent!\x1b[0m'
 			} else {
-				status = (new Date).toLocaleTimeString('is')+' \x1b[31mYou should run Spel2.exe before spawning items you know!\x1b[0m'
+				status = (new Date).toLocaleTimeString('is')+' \x1b[31mYou should start Spel2.exe before spawning items you know!\x1b[0m'
 			}
 		} else if(key.name == 'escape') {
 			input = ''
