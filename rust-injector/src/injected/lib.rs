@@ -14,7 +14,6 @@ use winapi::um::libloaderapi::LoadLibraryA;
 use winapi::um::winnt::DLL_PROCESS_ATTACH;
 use std::net::UdpSocket;
 use std::str;
-//use std::time::Duration;
 
 #[no_mangle]
 unsafe extern "C" fn DllMain(_: *const u8, reason: u32, _: *const u8) -> bool {
@@ -68,7 +67,6 @@ pub unsafe fn main() {
         std::mem::transmute(get_load_item(exe, after_bundle) + spel2_ptr as usize);
 
     let socket = UdpSocket::bind("0.0.0.0:5001").unwrap();
-    //let _timeout = socket.set_read_timeout(Some(Duration::new(1, 0)));
     loop {
         let mut buf = [0; 16];
         let (_amt, _src) = socket.recv_from(&mut buf).unwrap();
@@ -83,7 +81,6 @@ pub unsafe fn main() {
             // This is RAII-style implementation for suspending the main thread, for preventing race conditions.
             let mut _lock = c.lock();
             let (x, y) = state.items().player(0).position();
-            //message(format!("Player is at {} {}", x, y));
             load_item(state.layer(0), id, x+dx, y+dy);
         }
     }
