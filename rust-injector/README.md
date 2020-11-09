@@ -2,10 +2,10 @@
 It's lightning fast, you can use it over ssh, but it has some other issues<sup>[1](#foot1)</sup>. Once again I just made the cli, injector by iojonmbnmb.
 ```
 (Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit
-   425: ENT_TYPE_ITEM_CLONEGUNSHOT
-   565: ENT_TYPE_ITEM_WEBGUN
- > 566: ENT_TYPE_ITEM_SHOTGUN
-   578: ENT_TYPE_ITEM_CLONEGUN
+   425: ITEM_CLONEGUNSHOT
+   565: ITEM_WEBGUN
+ > 566: ITEM_SHOTGUN
+   578: ITEM_CLONEGUN
 566 0,0 > item gun_
 ```
 ## Usage
