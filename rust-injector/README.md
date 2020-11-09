@@ -9,8 +9,9 @@ It's lightning fast and you can use it over ssh. Once again I just made the cli,
 566 0,0 > item gun_
 </pre>
 ## Usage
-Install https://rustup.rs/ and https://nodejs.org/ (you'll want to check the build tools during installation too). Extract the rust project somewhere, start the game and run in `rust-injector/` in a command prompt:
+Install https://rustup.rs/ and https://nodejs.org/ (you'll want to check the build tools during installation too). Extract the rust project somewhere, start the game and run in `cmd`:
 ```
+cd c:\where\ever\you\extracted\rust-injector\
 cargo build
 node cli
 ```
