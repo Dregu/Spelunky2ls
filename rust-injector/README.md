@@ -1,4 +1,4 @@
-# Command line item spawner
+# Console nodejs+rust item spawner
 It's lightning fast and you can use it over ssh. Once again I just made the cli, injector by iojonmbnmb.
 <pre>
 (Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit
