@@ -1,5 +1,5 @@
 # Experimental rust injector and node cli item spawner
-It's lightning fast, you can use it over ssh, but it has some other issues. Once again I just made the cli, injector by iojonmbnmb.
+It's lightning fast, you can use it over ssh, but it has some other issues<sup>[1](#foot1)</sup>. Once again I just made the cli, injector by iojonmbnmb.
 ```
 (Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit
    425: ENT_TYPE_ITEM_CLONEGUNSHOT
@@ -15,4 +15,4 @@ cargo build
 node cli
 ```
 ## TODO
-You can't exit the game, too bad!
+<a name="foot1">1</a>: You can't exit the game. Too bad!
