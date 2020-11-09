@@ -9,7 +9,7 @@ It's lightning fast, you can use it over ssh. Once again I just made the cli, in
 566 0,0 > item gun_
 </pre>
 ## Usage
-Get https://rustup.rs/ and https://nodejs.org/. Start the game, go to camp and run:
+Get https://rustup.rs/ and https://nodejs.org/. Start the game and run where you extracted the rust project:
 ```
 cargo build
 node cli
