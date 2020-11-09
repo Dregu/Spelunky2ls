@@ -1,5 +1,5 @@
 # Experimental rust injector and node cli item spawner
-It's lightning fast, you can use it over ssh, but it has some other issues<sup>[1](#foot1)</sup>. Once again I just made the cli, injector by iojonmbnmb.
+It's lightning fast, you can use it over ssh. Once again I just made the cli, injector by iojonmbnmb.
 <pre>
 (Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit
    425: ITEM_CLONEGUNSHOT
@@ -14,5 +14,3 @@ Get https://rustup.rs/ and https://nodejs.org/. Start the game, go to camp and r
 cargo build
 node cli
 ```
-## Issues
-<a name="foot1">1</a>: You can't exit the game. Too bad!
