@@ -23,3 +23,8 @@ copy target\debug\injected.dll .
 node cli
 ```
 You can now start the game before or after running the cli or even restart the game and it should get injected all the same...
+### Build executable
+```
+npm i -g pkg
+pkg . --targets win
+```
