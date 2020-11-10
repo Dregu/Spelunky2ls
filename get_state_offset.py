@@ -23,5 +23,20 @@ data = open(target, 'rb').read()
 delta = 0xc00
 
 _, state = find('83 78 0C 05 0F 85 ', -15)
-print(hex(state))
+offsets = [['byte screen', '0x10'],
+    ['byte loading', '0x14'],
+    ['byte trans', '0x28'],
+    ['byte fade', '0x2c'],
+    ['bool ingame', '0x30'],
+    ['bool playing', '0x31'],
+    ['byte pause', '0x32'],
+    ['int counter', '-192'],
+    ['int igt', '0x60'],
+    ['byte world', '0x65'],
+    ['byte level', '0x66']]
+print('state("Spel2", "")')
+print('{')
+for i in offsets:
+    print("\t{} : {}, {};".format(i[0], hex(state), i[1]))
+print('}')
 input("Press Enter to continue...")
