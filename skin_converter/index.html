@@ -116,7 +116,7 @@ var copy = (src, dest, sx, sy, dx, dy, deg, oy) => {
 	dy = dy*128
 	var crop = src.getImageData(sx, sy, 128, 128)
 	// clean top few pixels of tiles from garbage I guess
-	for(i = 0; i < 4*4*128; i++) {
+	for(i = 0; i < oy*4*128; i++) {
 		crop.data[i] = 0
 	}
 	dest.clearRect(dx, dy, 128, 128)
