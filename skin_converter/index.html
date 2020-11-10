@@ -193,6 +193,16 @@ var drawOutput = () => {
 		drawSlices(s2, out, slices["s2"])
 	}
 	out.clearRect(11*128, 11*128, 128, 128)
+	var imageData = out.getImageData(0, 0, 2048, 2048);
+	for (var i=0;i<imageData.data.length;i+=4) {
+		if(imageData.data[i+3] < 5) {
+			imageData.data[i] = 0
+			imageData.data[i+1] = 0
+			imageData.data[i+2] = 0
+			imageData.data[i+3] = 0
+		}
+	}
+	out.putImageData(imageData,0,0);
 }
 var drawHero = (e) => {
 	var out = document.getElementById('output').getContext('2d')
@@ -222,7 +232,7 @@ var drawHelp = (id, text) => {
 	}
 }
 var save = () => {
-	var canvas = document.getElementById('output')
+	var output = document.getElementById('output')
 	output.toBlob((blob) => {
 		saveAs(blob, 'converted_'+document.getElementById('hd').dataset.file)
 	})
