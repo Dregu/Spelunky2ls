@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spelunky HD to Spelunky 2 skin converter</title>
+<style>
+body {
+	background: #222;
+	font-family: Segoe UI, sans-serif;
+	color: #eee;
+}
+h1,h2 {
+	text-align: center;
+}
+#container {
+	width: 1028px;
+	margin: 0 auto;
+}
+#sources {
+	display: flex;
+}
+.source {
+	width: 511px;
+	height: 511px;
+	border: 1px solid rgba(255,255,255,0.5);
+	background-size: 100% 100%;
+}
+#output {
+	width: 1024px;
+	height: 1024px;
+	border: 1px solid rgba(255,255,255,0.5);
+	background-size: 100% 100%;
+}
+button {
+	background: #666;
+	font-family: Segoe UI, sans-serif;
+	font-weight: bold;
+	border: 0;
+	border-radius: 10px;
+	font-size: 1.2em;
+	cursor: pointer;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
+</head>
+<body>
+<div id='container'>
+	<h1>Spelunky HD &rarr; Spelunky 2 skin converter</h1>
+	<div id='sources'>
+		<canvas width='2048' height='2048' class='source' id='hd' ondrop='dropHandler(event)' ondragover='dragOverHandler(event)'></canvas>
+		<canvas width='2048' height='2048' class='source' id='s2' ondrop='dropHandler(event)' ondragover='dragOverHandler(event)'></canvas>
+	</div>
+	<div id='dest'>
+		<h2>Click any tile to use as hero sprite and <button onclick='save()'>Download skin</button></h2>
+		<canvas width='2048' height='2048' id='output' onclick='drawHero(event)'></canvas>
+	</div>
+</div>
+<script>
+var drawGrid = function(id) {
+	const w = 2048, h = 2048
+	var grid = document.createElement('canvas')
+	var ctx = grid.getContext('2d')
+	grid.width = w
+	grid.height = h
+	ctx.lineWidth = 4
+	for (x=0;x<=w;x+=128) {
+		for (y=0;y<=h;y+=128) {
+			ctx.moveTo(x, 0)
+			ctx.lineTo(x, h)
+			ctx.stroke()
+			ctx.moveTo(0, y)
+			ctx.lineTo(w, y)
+			ctx.stroke()
+		}
+	}
+	document.getElementById(id).style.backgroundImage = 'url('+grid.toDataURL()+')'
+}
+var dropHandler = (e) => {
+	e.preventDefault()
+	if (e.dataTransfer.items) {
+		for (var i = 0; i < e.dataTransfer.items.length; i++) {
+			if (e.dataTransfer.items[i].kind === 'file') {
+				var file = e.dataTransfer.items[i].getAsFile()
+				var reader = new FileReader()
+				var image = new Image()
+				reader.onload = ((canvas) => {
+					return (f) => {
+						var image = new Image()
+						image.src = f.target.result
+						image.onload = () => {
+							var ctx = canvas.getContext('2d')
+							ctx.clearRect(0, 0, 2048, 2048);
+							if(e.target.id == 'hd') {
+								ctx.drawImage(image, 0, 0, 1024, 1024, 0, 0, 1638, 1638)
+							} else {
+								ctx.drawImage(image, 0, 0, 2048, 2048)
+							}
+							e.target.dataset.file = file.name
+							drawOutput()
+						}
+					}
+				})(e.target)
+				reader.readAsDataURL(file)
+			}
+		}
+	}
+}
+var dragOverHandler = (e) => {
+	e.preventDefault()
+}
+
+var copy = (src, dest, sx, sy, dx, dy, deg) => {
+	console.log('copying', sy, sx, 'to', dy, dx)
+	sx = sx*128
+	sy = sy*128
+	dx = dx*128
+	dy = dy*128
+	var crop = src.getImageData(sx, sy, 128, 128)
+	dest.clearRect(dx, dy, 128, 128)
+	if(deg != 0) {
+		console.log('rotating', deg)
+		var rad = deg*Math.PI/180
+		var rot = document.createElement('canvas')
+		var rot2 = document.createElement('canvas')
+		rot.width = 128
+		rot.height = 128
+		rot2.width = 128
+		rot2.height = 128
+		var rotctx = rot.getContext('2d')
+		var rot2ctx = rot2.getContext('2d')
+		rotctx.putImageData(crop, 0, 0)
+		rot2ctx.save()
+		rot2ctx.translate(64, 64)
+		rot2ctx.rotate(rad)
+		rot2ctx.drawImage(rot, -64, -64)
+		rot2ctx.restore()
+		dest.drawImage(rot2, dx, dy)
+	} else {
+		dest.putImageData(crop, dx, dy)
+	}
+}
+var drawSlices = (src, dest, slices) => {
+	for(let r of slices) {
+		for(let y = 0; y+r[0] <= r[2]; y++) {
+			for(let x = 0; x+r[1] <= r[3]; x++) {
+				var sx = x+r[1], sy = y+r[0], dx = x+r[5], dy = y+r[4], deg = r[6]
+				copy(src, dest, sx, sy, dx, dy, deg)
+			}
+		}
+	}
+}
+const slices = {
+	"hd": [
+		[ 9, 2, 9, 7, 0, 10, 25 ], // swim
+		[ 4, 7, 4, 7, 2, 11, 0 ], // hold
+		[ 1, 0, 1, 4, 7, 10, 0], // ride down
+		[ 9, 1, 9, 1, 8, 7, 0], // ride
+		[ 8, 0, 8, 6, 8, 8, 0], // ride up
+		[ 4, 3, 4, 10, 14, 0, 0 ], // pet
+		[ 10, 6, 10, 9, 10, 12, 0], // ghost
+		[ 10, 4, 10, 5, 10, 10, 0], // ghost
+		[ 10, 3, 10, 3, 10, 7, 0 ], // ghost
+		[ 10, 3, 10, 3, 10, 8, 0 ], // ghost
+		[ 10, 3, 10, 3, 10, 9, 0 ], // ghost
+		[ 9, 2, 9, 7, 11, 4, 0], // fall
+		[ 11, 6, 11, 6, 11, 10, 0], // pose
+		[ 11, 4, 11, 4, 11, 1, 0], // bag
+		[ 11, 5, 11, 5, 11, 2, 0], // transparent
+		[ 11, 2, 11, 2, 11, 3, 0] // pin
+	],
+	"s2": [
+		[ 9, 12, 9, 15, 9, 12, 0], // rope
+		[ 12, 0, 12, 15, 12, 0, 0], // rope
+		[ 13, 0, 13, 11, 13, 0, 0] // stun
+	]
+}
+var drawOutput = () => {
+	var hd = document.getElementById('hd').getContext('2d')
+	var s2 = document.getElementById('s2').getContext('2d')
+	var out = document.getElementById('output').getContext('2d')
+	out.clearRect(0, 0, 2048, 2048);
+	if(document.getElementById('hd').dataset.file) {
+		out.drawImage(hd.canvas, 0, 0, 2048, 2048)
+		drawSlices(hd, out, slices["hd"])
+	}
+	if(document.getElementById('s2').dataset.file) {
+		drawSlices(s2, out, slices["s2"])
+	}
+	out.clearRect(11*128, 11*128, 128, 128)
+}
+var drawHero = (e) => {
+	var out = document.getElementById('output').getContext('2d')
+	var x = e.pageX - e.target.offsetLeft
+	var y = e.pageY - e.target.offsetTop
+	x = Math.floor(x/1024*16)
+	y = Math.floor(y/1024*16)
+	var crop = out.getImageData(x*128, y*128, 128, 128)
+	var hero = document.createElement('canvas')
+	hero.width = 128
+	hero.height = 128
+	var heroctx = hero.getContext('2d')
+	heroctx.putImageData(crop, 0, 0)
+	out.clearRect(12*128, 128, 4*128, 6*128)
+	out.drawImage(hero, 0, 0, 128, 128, 12*128, 2*128, 4*128, 4*128)
+}
+var drawHelp = (id, text) => {
+	var ctx = document.getElementById(id).getContext('2d')
+	ctx.font = '132px Segoe UI'
+	ctx.textAlign = 'center'
+	ctx.fillStyle = 'white'
+	text = text.split('\n')
+	var y = 900
+	for(let line of text) {
+		ctx.fillText(line, 1024, y)
+		y += 128
+	}
+}
+var save = () => {
+	var canvas = document.getElementById('output')
+	output.toBlob((blob) => {
+		saveAs(blob, 'converted_'+document.getElementById('hd').dataset.file)
+	})
+}
+var originalName
+drawGrid('hd')
+drawGrid('s2')
+drawGrid('output')
+drawHelp('hd', 'Drop the Spelunky HD\nskin you want\nto convert here.')
+drawHelp('s2', 'Drop any Spelunky 2\nskin for rope and stun\nsprites here.')
+</script>
+</body>
+</html>
