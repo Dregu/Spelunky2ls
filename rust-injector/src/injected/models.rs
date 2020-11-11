@@ -16,7 +16,7 @@ impl<'a> Memory<'a> {
         LE::read_f32(&self.mem[addr..])
     }
     fn u8(&self, addr: usize) -> u8 {
-        LE::read_uint(&self.mem[addr..], 8) as u8
+        LE::read_uint(&self.mem[addr..], 1) as u8
     }
 }
 
