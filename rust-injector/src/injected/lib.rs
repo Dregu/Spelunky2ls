@@ -81,8 +81,9 @@ pub unsafe fn main() {
             // This is RAII-style implementation for suspending the main thread, for preventing race conditions.
             let mut _lock = c.lock();
             let (x, y) = state.items().player(0).position();
+            let l = state.items().player(0).layer();
             if x != 0.0 && y != 0.0 {
-                load_item(state.layer(0), id, x+dx, y+dy);
+                load_item(state.layer(l), id, x+dx, y+dy);
             }
         }
     }

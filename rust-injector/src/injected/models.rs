@@ -15,6 +15,9 @@ impl<'a> Memory<'a> {
     fn f32(&self, addr: usize) -> f32 {
         LE::read_f32(&self.mem[addr..])
     }
+    fn u8(&self, addr: usize) -> u8 {
+        LE::read_uint(&self.mem[addr..], 8) as u8
+    }
 }
 
 pub struct State<'a> {
@@ -92,7 +95,7 @@ impl<'a> Player<'a> {
             loop {
                 let (_x, _y) = (
                     self.memory.f32(overlay + 0x40),
-                    self.memory.f32(overlay + 0x44),
+                    self.memory.f32(overlay + 0x44)
                 );
                 x += _x;
                 y += _y;
@@ -103,5 +106,14 @@ impl<'a> Player<'a> {
             }
         }
         (x, y)
+    }
+    pub fn layer(&self) -> usize {
+        // "overlay" exists if player is riding something / etc
+        let mut l: usize = 0;
+        let overlay = self.pointer;
+        if overlay != 0 {
+            l = self.memory.u8(overlay + 0x98) as usize;
+        }
+        l
     }
 }

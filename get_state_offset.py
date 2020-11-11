@@ -38,5 +38,6 @@ print('state("Spel2", "")')
 print('{')
 for i in offsets:
     print("\t{} : {}, {};".format(i[0], hex(state), i[1]))
+print("\tbyte255 savedata : {}, 0x18, 0, 0;".format(hex(state-72)))
 print('}')
 input("Press Enter to continue...")
