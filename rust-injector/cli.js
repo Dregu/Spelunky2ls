@@ -25,14 +25,14 @@ const inject = () => {
 					if(err) {
 						(new Date).toLocaleTimeString('is')+' \x1b[31mError injecting: '+err.toString()+'\x1b[0m'
 					} else {
-						status = (new Date).toLocaleTimeString('is')+' \x1b[32mSpel2.exe process id '+pid+' injected!\x1b[0m'
+						status = (new Date).toLocaleTimeString('is')+' \x1b[32mSpel2.exe process id '+pid+' injected! You can spawn items now.\x1b[0m'
 						running = true
 					}
 					update()
 				})
 			}
 		} else {
-			status = (new Date).toLocaleTimeString('is')+' \x1b[31mSpel2.exe process not found :(\x1b[0m'
+			status = (new Date).toLocaleTimeString('is')+' \x1b[31mSpel2.exe process not found, please start the game!\x1b[0m'
 			update()
 			running = false
 		}
@@ -46,7 +46,7 @@ for(let e of entities) {
 }
 ents.sort();
 results = ents;
-var input = '', id = 0, sid = 0, dx = 0, dy = 0, help = '(Pg)Up/Down: Select | ^Arrows: x,y | Enter: Spawn | ^W: Erase Word | ^C: Quit'
+var input = '', id = 0, sid = 0, dx = 0, dy = 0, help = '(Pg)↑/↓ Select | Ctrl+↑↓←→ x,y | Enter Spawn | Ctrl+W Erase | Ctrl+C Quit'
 process.stdin.on('keypress', (str, key) => {
 	update(str, key);
 })
@@ -78,7 +78,7 @@ const update = (str, key) => {
 				client.send(cmd+'\n', 5001, 'localhost')
 				status = (new Date).toLocaleTimeString('is')+' \x1b[32mCommand '+cmd+' sent!\x1b[0m'
 			} else {
-				status = (new Date).toLocaleTimeString('is')+' \x1b[31mYou should start Spel2.exe before spawning items you know!\x1b[0m'
+				status = (new Date).toLocaleTimeString('is')+' \x1b[31mYou should start the game before spawning items you know!\x1b[0m'
 			}
 		} else if(key.name == 'escape') {
 			input = ''
