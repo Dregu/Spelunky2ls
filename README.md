@@ -1,8 +1,8 @@
 # Spelunky Twols
 Spelunky 2 tools for item spawning and exploration using the Spelunky 2 injector by iojon.
 
-## rust-injector/
-Console version of item spawner with a minimal UI made with nodejs and rust. Executable available at https://github.com/Dregu/Spelunky2ls/releases/latest. **This is the one you should get.** If you get an alert from SmartScreen [just allow it](https://imgur.com/a/jzv8og5). If your antivirus blocks it just throw the antivirus away too.
+## [rust-injector](rust-injector)
+Console version of item spawner with a minimal UI made with nodejs and rust. Executable available at **[here](https://github.com/Dregu/Spelunky2ls/releases/latest)**. **This is the one you should get.** If you get an alert from SmartScreen [just allow it](https://imgur.com/a/jzv8og5). If your antivirus blocks it just throw the antivirus away too.
 
 ## Python scripts usage
   - Extract somewhere
@@ -13,7 +13,7 @@ Console version of item spawner with a minimal UI made with nodejs and rust. Exe
   - These scripts will try to hook any running executable with the name **Spel2\*.exe** so you can run this with old versions too (e.g. Spel2-1.12.1e.exe)
   
 ## spawnserver.py
-Don't use this unless you really want to. I'm not updating it anymore. Rust-injector is better. Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation. Executable available at https://github.com/Dregu/Spelunky2ls/releases/tag/0.4. If you get an alert from SmartScreen [just allow it](https://imgur.com/a/jzv8og5). If your antivirus blocks it just throw the antivirus away too.
+Don't use this unless you really want to. I'm not updating it anymore. Rust-injector is better. Spawn any item. Webgui at http://localhost:5000/ now with search function and keyboard navigation. Executable available at [here](https://github.com/Dregu/Spelunky2ls/releases/tag/0.4). If you get an alert from SmartScreen [just allow it](https://imgur.com/a/jzv8og5). If your antivirus blocks it just throw the antivirus away too.
 
 ## item.py
 Ditto. `python item.py id`
