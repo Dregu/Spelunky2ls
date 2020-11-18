@@ -2,7 +2,7 @@
 Spelunky 2 tools for item spawning and exploration using the Spelunky 2 injector by iojon.
 
 ## [rust-injector](rust-injector)
-Console version of the item spawner at https://github.com/spelunky-fyi/rust-injector with a minimal UI made with nodejs. Executable available at **[here](https://github.com/Dregu/Spelunky2ls/releases/latest)**. If you get an alert from SmartScreen [just allow it](https://imgur.com/a/jzv8og5). If your antivirus blocks it just throw the antivirus away too.
+Console version of the item spawner at https://github.com/spelunky-fyi/overlunky with a minimal UI made with nodejs. Executable available at **[here](https://github.com/Dregu/Spelunky2ls/releases/latest)**. If you get an alert from SmartScreen [just allow it](https://imgur.com/a/jzv8og5). If your antivirus blocks it just throw the antivirus away too.
 
 ## Python scripts usage
   - Extract somewhere
