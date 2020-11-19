@@ -1,3 +1,5 @@
+**Note: Nothing here probably works from version 1.17.0f forward and I do not plan to fix it.**
+
 # Spelunky Twols
 Spelunky 2 tools for item spawning and exploration using the Spelunky 2 injector by iojon.
 
