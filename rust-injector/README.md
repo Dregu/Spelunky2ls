@@ -1,3 +1,5 @@
+**Note: Nothing here probably works from version 1.17.0f forward and I do not plan to fix it.**
+
 # Console nodejs+rust item spawner
 It's lightning fast and you can use it over ssh. Once again I just made the cli, injector by iojonmbnmb.
 <pre>
