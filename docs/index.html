@@ -5,6 +5,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Spelunky 2 Character Tracker</title>
   <link rel="stylesheet" href="">
+  <style type="text/css">
+    body, html {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 </head>
 <body style="background: #000">
 <canvas id="tracker" width="560" height="240"></canvas>
@@ -45,7 +51,7 @@ var ctx = canvas.getContext('2d');
 const draw = () => {
   ctx.clearRect(0, 0, 560, 240);
   for(let c of tracker) {
-    if(c.locked && c.name != 'Reset') {
+    if(c.locked) {
       ctx.globalAlpha = 0.3;
     } else {
       ctx.globalAlpha = 1;
