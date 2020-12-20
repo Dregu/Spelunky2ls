@@ -31,8 +31,10 @@ layer = proc.r64(state + layer_off)
 def signed(x):
     return x if x & 0x80000000 == 0 else x - 0x100000000
 
-inst, _ = find('BA 88 02 00 00', 1, 'off')
-load_item, _ = find('BA 88 02 00 00', 8, 'off', start=inst)
+inst, _ = find('BA B9 01 00 00', 1, 'off')
+inst, _ = find('BA B9 01 00 00', 5, 'off', start=inst)
+inst, _ = find('BA B9 01 00 00', 5, 'off', start=inst)
+load_item, _ = find('E8', 1, 'off', start=inst)
 load_item += signed(struct.unpack_from("<L", data, load_item + 1)[0]) + 5
 load_item += delta
 load_item += base
@@ -58,7 +60,7 @@ while True:
     if screen != 12:
         spawnid = 0
     if screen == 12 and (oldscreen in [11, 13] or igt == 1):
-        spawnid = 311
+        spawnid = 312
     if spawnid != 0 and player != 0 and player != oldplayer:
         x, y = struct.unpack("<2f", proc.read(player + 0x40, 8))
         y+=4

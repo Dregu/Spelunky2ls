@@ -23,21 +23,28 @@ data = open(target, 'rb').read()
 delta = 0xc00
 
 _, state = find('83 78 0C 05 0F 85 ', -15)
-offsets = [['byte screen', '0x10'],
+offsets = [
+    ['int counter', '-192'],
+    ['byte screen', '0x10'],
     ['byte loading', '0x14'],
     ['byte trans', '0x28'],
-    ['byte fade', '0x2c'],
     ['bool ingame', '0x30'],
     ['bool playing', '0x31'],
     ['byte pause', '0x32'],
-    ['int counter', '-192'],
     ['int igt', '0x60'],
     ['byte world', '0x65'],
-    ['byte level', '0x66']]
+    ['byte level', '0x66'],
+    ['float x', '0x1298, 0x8, 0x40'],
+    ['float y', '0x1298, 0x8, 0x44'],
+    ['byte door',  '0x1298, 0x8, 0x114'],
+    ['byte health', '0x1298, 0x8, 0x10f'],
+    ['byte bombs', '0x1298, 0x2c'],
+    ['byte ropes', '0x1298, 0x2d']
+]
 print('state("Spel2", "")')
 print('{')
 for i in offsets:
-    print("\t{} : {}, {};".format(i[0], hex(state), i[1]))
-print("\tbyte255 savedata : {}, 0x18, 0, 0;".format(hex(state-72)))
+    print("  {} : {}, {};".format(i[0], hex(state), i[1]))
+print("  byte255 savedata : {}, 0x18, 0, 0;".format(hex(state-72)))
 print('}')
 input("Press Enter to continue...")
