@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Playlunky Custom Sprite Mapper</title>
+<style>
+body {
+	background: #222;
+	font-family: Segoe UI, sans-serif;
+	color: #eee;
+}
+h1,h2 {
+	text-align: center;
+}
+#container {
+	margin: 0 auto;
+}
+#flex {
+	display: flex;
+	flex-basis: middle;
+	align-items: center;
+}
+#source {
+	width: 1024px;
+	height: 1024px;
+	border: 1px solid rgba(255,255,255,0.5);
+	background-size: 100% 100%;
+}
+#output {
+	height: 128px;
+	border: 1px solid rgba(255,255,255,0.5);
+	background-size: 100% 100%;
+	display: block;
+}
+#arrow {
+	font-size: 3em;
+	margin: 20px;
+}
+#mod {
+	width: 100%;
+	height: 300px;
+	color: #eee;
+	background: transparent;
+	border: 1px solid rgba(255,255,255,0.5);
+}
+button {
+	color: #eee;
+	background: #666;
+	font-family: Segoe UI, sans-serif;
+	font-weight: bold;
+	border: 0;
+	border-radius: 10px;
+	font-size: 1.2em;
+	cursor: pointer;
+	text-decoration: none;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
+</head>
+<body>
+<div id='container'>
+	<h1>Playlunky Custom Sprite Mapper for items.png</h1>
+	<h2>Click all the tiles you want to include and <button onclick='save()'>Download sprite</button></h2>
+	<div id='flex'>
+		<canvas width='2048' height='2048' id='source' ondrop='dropHandler(event)' ondragover='dragOverHandler(event)' onclick='selectTile(event)'></canvas>
+		<div id='arrow'>&raquo;</div>
+		<div>
+		<canvas width='0' height='128' id='output'></canvas>
+		<textarea id='mod' cols='80'></textarea>
+		</div>
+	</div>
+</div>
+<script>
+var drawGrid = function(id) {
+	const w = 2048, h = 2048
+	var grid = document.createElement('canvas')
+	var ctx = grid.getContext('2d')
+	grid.width = w
+	grid.height = h
+	ctx.lineWidth = 4
+	for (x=0;x<=w;x+=128) {
+		for (y=0;y<=h;y+=128) {
+			ctx.moveTo(x, 0)
+			ctx.lineTo(x, h)
+			ctx.stroke()
+			ctx.moveTo(0, y)
+			ctx.lineTo(w, y)
+			ctx.stroke()
+		}
+	}
+	document.getElementById(id).style.backgroundImage = 'url('+grid.toDataURL()+')'
+}
+var dropHandler = (e) => {
+	e.preventDefault()
+	if (e.dataTransfer.items) {
+		for (var i = 0; i < e.dataTransfer.items.length; i++) {
+			if (e.dataTransfer.items[i].kind === 'file') {
+				var file = e.dataTransfer.items[i].getAsFile()
+				var reader = new FileReader()
+				var image = new Image()
+				reader.onload = ((canvas) => {
+					return (f) => {
+						var image = new Image()
+						image.src = f.target.result
+						image.onload = () => {
+							var ctx = canvas.getContext('2d')
+							ctx.clearRect(0, 0, 2048, 2048);
+							if(e.target.id == 'hd') {
+								ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, 1638, 1638)
+							} else {
+								ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, 2048, 2048)
+							}
+							e.target.dataset.file = file.name
+						}
+					}
+				})(e.target)
+				reader.readAsDataURL(file)
+			}
+		}
+	}
+}
+var dragOverHandler = (e) => {
+	e.preventDefault()
+}
+
+var copy = (src, dest, sx, sy, dx, dy, deg, oy) => {
+	console.log('copying', sy, sx, 'to', dy, dx)
+	sx = sx*128
+	sy = sy*128
+	dx = dx*128
+	dy = dy*128
+	var crop = src.getImageData(sx, sy, 128, 128)
+	// clean top few pixels of tiles from garbage I guess
+	for(i = 0; i < oy*4*128; i++) {
+		crop.data[i] = 0
+	}
+	dest.clearRect(dx, dy, 128, 128)
+	if(deg != 0) {
+		console.log('rotating', deg)
+		var rad = deg*Math.PI/180
+		var rot = document.createElement('canvas')
+		var rot2 = document.createElement('canvas')
+		rot.width = 128
+		rot.height = 128
+		rot2.width = 128
+		rot2.height = 128
+		var rotctx = rot.getContext('2d')
+		var rot2ctx = rot2.getContext('2d')
+		rotctx.putImageData(crop, 0, 0)
+		rot2ctx.save()
+		rot2ctx.translate(64, 64)
+		rot2ctx.rotate(rad)
+		rot2ctx.drawImage(rot, -64, -64)
+		rot2ctx.restore()
+		dest.drawImage(rot2, dx, dy)
+	} else {
+		dest.putImageData(crop, dx, dy+oy)
+	}
+}
+var olddata
+var sprites = []
+var map = {
+	author: "",
+	name: "",
+	description: "",
+	version: "",
+	image_map: {}
+}
+var selectTile = (e) => {
+	var outw = document.getElementById('output').width
+	document.getElementById('output').width += 128
+	var src = document.getElementById('source').getContext('2d')
+	var out = document.getElementById('output').getContext('2d')
+	var x = e.pageX - e.target.offsetLeft
+	var y = e.pageY - e.target.offsetTop
+	x = Math.floor(x/1024*16)
+	y = Math.floor(y/1024*16)
+	var crop = src.getImageData(x*128, y*128, 128, 128)
+	if (olddata) out.putImageData(olddata, 0, 0)
+	out.putImageData(crop, outw, 0)
+	outw = document.getElementById('output').width
+	olddata = out.getImageData(0, 0, outw, 128)
+	sprites.push([x*128, y*128, x*128+128, y*128+128])
+	var filename = 'custom_'+document.getElementById('source').dataset.file
+	map.image_map[filename] = {
+		'Data/Textures/items.png': []
+	}
+	sprites.forEach((v, i) => {
+		map.image_map[filename]['Data/Textures/items.png'].push({
+			from: [i*128, 0, i*128+128, 128],
+			to: v
+		})
+	})
+	var json = JSON.stringify(map, null, '    ')
+	document.getElementById('mod').innerHTML = json
+}
+var download = (filename, text) => {
+	var element = document.createElement('a')
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+	element.setAttribute('download', filename)
+	element.style.display = 'none'
+	document.body.appendChild(element)
+	element.click()
+	document.body.removeChild(element)
+}
+var save = () => {
+	var output = document.getElementById('output')
+	var filename = 'custom_'+document.getElementById('source').dataset.file
+	output.toBlob((blob) => {
+		saveAs(blob, filename)
+	})
+	download('mod_info.json', document.getElementById('mod').value)
+}
+drawGrid('source')
+</script>
+</body>
+</html>
