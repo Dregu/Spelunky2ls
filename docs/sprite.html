@@ -58,8 +58,9 @@ button {
 </head>
 <body>
 <div id='container'>
-	<h1>Playlunky Custom Sprite Mapper for items.png</h1>
-	<h2>Drop your items.png on the grid, click all the tiles you want to include and <button onclick='save()'>Download sprite</button></h2>
+	<h1>Playlunky Custom Sprite Mapper</h1>
+	<h2>Texture size: <input id='texturesize' disabled> Grid size: <input id='gridsize' value='128'></h2>
+	<h2>Drop your sprite sheet on the grid, click all the tiles you want to include and <button onclick='save()'>Download sprite</button></h2>
 	<div id='flex'>
 		<canvas width='2048' height='2048' id='source' ondrop='dropHandler(event)' ondragover='dragOverHandler(event)' onclick='selectTile(event)'></canvas>
 		<div id='arrow'>&raquo;</div>
@@ -70,15 +71,37 @@ button {
 	</div>
 </div>
 <script>
+var getGridSize = function() {
+	return parseInt(document.getElementById('gridsize').value) || 128
+}
+
+var getTextureSize = function() {
+	return parseInt(document.getElementById('texturesize').value) || 2048
+}
+
+var setTextureSize = function(x) {
+	document.getElementById('texturesize').value = x
+	document.getElementById('source').width = x
+	document.getElementById('source').height = x
+	drawGrid('source')
+}
+
+var updateTextureSize = function() {
+	var x = document.getElementById('texturesize').value
+	document.getElementById('source').width = x
+	document.getElementById('source').height = x
+	drawGrid('source')
+}
+
 var drawGrid = function(id) {
-	const w = 2048, h = 2048
+	const w = getTextureSize(), h = getTextureSize()
 	var grid = document.createElement('canvas')
 	var ctx = grid.getContext('2d')
 	grid.width = w
 	grid.height = h
 	ctx.lineWidth = 4
-	for (x=0;x<=w;x+=128) {
-		for (y=0;y<=h;y+=128) {
+	for (x=0;x<=w;x+=getGridSize()) {
+		for (y=0;y<=h;y+=getGridSize()) {
 			ctx.moveTo(x, 0)
 			ctx.lineTo(x, h)
 			ctx.stroke()
@@ -102,13 +125,10 @@ var dropHandler = (e) => {
 						var image = new Image()
 						image.src = f.target.result
 						image.onload = () => {
+							setTextureSize(image.width)
 							var ctx = canvas.getContext('2d')
-							ctx.clearRect(0, 0, 2048, 2048);
-							if(e.target.id == 'hd') {
-								ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, 1638, 1638)
-							} else {
-								ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, 2048, 2048)
-							}
+							ctx.clearRect(0, 0, getTextureSize(), getTextureSize());
+							ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, getTextureSize(), getTextureSize())
 							e.target.dataset.file = file.name
 						}
 					}
@@ -124,37 +144,13 @@ var dragOverHandler = (e) => {
 
 var copy = (src, dest, sx, sy, dx, dy, deg, oy) => {
 	console.log('copying', sy, sx, 'to', dy, dx)
-	sx = sx*128
-	sy = sy*128
-	dx = dx*128
-	dy = dy*128
-	var crop = src.getImageData(sx, sy, 128, 128)
-	// clean top few pixels of tiles from garbage I guess
-	for(i = 0; i < oy*4*128; i++) {
-		crop.data[i] = 0
-	}
-	dest.clearRect(dx, dy, 128, 128)
-	if(deg != 0) {
-		console.log('rotating', deg)
-		var rad = deg*Math.PI/180
-		var rot = document.createElement('canvas')
-		var rot2 = document.createElement('canvas')
-		rot.width = 128
-		rot.height = 128
-		rot2.width = 128
-		rot2.height = 128
-		var rotctx = rot.getContext('2d')
-		var rot2ctx = rot2.getContext('2d')
-		rotctx.putImageData(crop, 0, 0)
-		rot2ctx.save()
-		rot2ctx.translate(64, 64)
-		rot2ctx.rotate(rad)
-		rot2ctx.drawImage(rot, -64, -64)
-		rot2ctx.restore()
-		dest.drawImage(rot2, dx, dy)
-	} else {
-		dest.putImageData(crop, dx, dy+oy)
-	}
+	sx = sx*getGridSize()
+	sy = sy*getGridSize()
+	dx = dx*getGridSize()
+	dy = dy*getGridSize()
+	var crop = src.getImageData(sx, sy, getGridSize(), getGridSize())
+	dest.clearRect(dx, dy, getGridSize(), getGridSize())
+	dest.putImageData(crop, dx, dy+oy)
 }
 var olddata
 var sprites = []
@@ -172,21 +168,21 @@ var selectTile = (e) => {
 	var out = document.getElementById('output').getContext('2d')
 	var x = e.pageX - e.target.offsetLeft
 	var y = e.pageY - e.target.offsetTop
-	x = Math.floor(x/1024*16)
-	y = Math.floor(y/1024*16)
-	var crop = src.getImageData(x*128, y*128, 128, 128)
+	x = Math.floor(x/1024*(getTextureSize()/getGridSize()))
+	y = Math.floor(y/1024*(getTextureSize()/getGridSize()))
+	var crop = src.getImageData(x*getGridSize(), y*getGridSize(), getGridSize(), getGridSize())
 	if (olddata) out.putImageData(olddata, 0, 0)
 	out.putImageData(crop, outw, 0)
 	outw = document.getElementById('output').width
-	olddata = out.getImageData(0, 0, outw, 128)
-	sprites.push([x*128, y*128, x*128+128, y*128+128])
-	var filename = 'custom_'+document.getElementById('source').dataset.file
-	map.image_map[filename] = {
-		'Data/Textures/items.png': []
-	}
+	olddata = out.getImageData(0, 0, outw, getGridSize())
+	sprites.push([x*getGridSize(), y*getGridSize(), x*getGridSize()+getGridSize(), y*getGridSize()+getGridSize()])
+	var filename = 'Data/Textures/'+document.getElementById('source').dataset.file
+	var custom_filename = 'custom_'+document.getElementById('source').dataset.file
+	map.image_map[custom_filename] = {}
+	map.image_map[custom_filename][filename] = []
 	sprites.forEach((v, i) => {
-		map.image_map[filename]['Data/Textures/items.png'].push({
-			from: [i*128, 0, i*128+128, 128],
+		map.image_map[custom_filename][filename].push({
+			from: [i*getGridSize(), 0, i*getGridSize()+getGridSize(), getGridSize()],
 			to: v
 		})
 	})
@@ -209,6 +205,9 @@ var save = () => {
 		saveAs(blob, filename)
 	})
 	download('mod_info.json', document.getElementById('mod').value)
+}
+document.getElementById('gridsize').onblur = function() {
+	updateTextureSize()
 }
 drawGrid('source')
 </script>
