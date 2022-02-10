@@ -21,7 +21,7 @@ h1,h2 {
 }
 #source {
 	width: 1024px;
-	height: 1024px;
+	aspect-ratio: 1 / 1;
 	border: 1px solid rgba(255,255,255,0.5);
 	background-size: 100% 100%;
 }
@@ -59,7 +59,9 @@ button {
 <body>
 <div id='container'>
 	<h1>Playlunky Custom Sprite Mapper</h1>
-	<h2>Texture size: <input id='texturesize' disabled> Grid size: <input id='gridsize' value='128'></h2>
+	<form autocomplete="off">
+	<h2>Texture size: <input id='texturewidth' size='3' disabled>x<input id='textureheight' size='3' disabled> Grid size: <input id='gridwidth' size='3' value='128'>x<input id='gridheight' size='3' value='128'></h2>
+	</form>
 	<h2>Drop your sprite sheet on the grid, click all the tiles you want to include and <button onclick='save()'>Download sprite</button></h2>
 	<div id='flex'>
 		<canvas width='2048' height='2048' id='source' ondrop='dropHandler(event)' ondragover='dragOverHandler(event)' onclick='selectTile(event)'></canvas>
@@ -71,37 +73,49 @@ button {
 	</div>
 </div>
 <script>
-var getGridSize = function() {
-	return parseInt(document.getElementById('gridsize').value) || 128
+var getGridW = function() {
+	return parseInt(document.getElementById('gridwidth').value) || 128
 }
 
-var getTextureSize = function() {
-	return parseInt(document.getElementById('texturesize').value) || 2048
+var getGridH = function() {
+	return parseInt(document.getElementById('gridheight').value) || 128
 }
 
-var setTextureSize = function(x) {
-	document.getElementById('texturesize').value = x
-	document.getElementById('source').width = x
-	document.getElementById('source').height = x
+var getTextureW = function() {
+	return parseInt(document.getElementById('texturewidth').value) || 2048
+}
+
+var getTextureH = function() {
+	return parseInt(document.getElementById('textureheight').value) || 2048
+}
+
+var setTextureSize = function(w, h) {
+	document.getElementById('texturewidth').value = w
+	document.getElementById('textureheight').value = h
+	document.getElementById('source').width = w
+	document.getElementById('source').height = h
+	document.getElementById('source').style.aspectRatio = w+' / '+h
 	drawGrid('source')
 }
 
 var updateTextureSize = function() {
-	var x = document.getElementById('texturesize').value
-	document.getElementById('source').width = x
-	document.getElementById('source').height = x
+	var w = document.getElementById('texturewidth').value
+	var h = document.getElementById('textureheight').value
+	document.getElementById('source').width = w
+	document.getElementById('source').height = h
+	document.getElementById('source').style.aspectRatio = w+' / '+h
 	drawGrid('source')
 }
 
 var drawGrid = function(id) {
-	const w = getTextureSize(), h = getTextureSize()
+	const w = getTextureW(), h = getTextureH()
 	var grid = document.createElement('canvas')
 	var ctx = grid.getContext('2d')
 	grid.width = w
 	grid.height = h
 	ctx.lineWidth = 4
-	for (x=0;x<=w;x+=getGridSize()) {
-		for (y=0;y<=h;y+=getGridSize()) {
+	for (x=0;x<=w;x+=getGridW()) {
+		for (y=0;y<=h;y+=getGridH()) {
 			ctx.moveTo(x, 0)
 			ctx.lineTo(x, h)
 			ctx.stroke()
@@ -125,10 +139,10 @@ var dropHandler = (e) => {
 						var image = new Image()
 						image.src = f.target.result
 						image.onload = () => {
-							setTextureSize(image.width)
+							setTextureSize(image.width, image.height)
 							var ctx = canvas.getContext('2d')
-							ctx.clearRect(0, 0, getTextureSize(), getTextureSize());
-							ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, getTextureSize(), getTextureSize())
+							ctx.clearRect(0, 0, getTextureW(), getTextureH());
+							ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, getTextureW(), getTextureH())
 							e.target.dataset.file = file.name
 						}
 					}
@@ -144,12 +158,12 @@ var dragOverHandler = (e) => {
 
 var copy = (src, dest, sx, sy, dx, dy, deg, oy) => {
 	console.log('copying', sy, sx, 'to', dy, dx)
-	sx = sx*getGridSize()
-	sy = sy*getGridSize()
-	dx = dx*getGridSize()
-	dy = dy*getGridSize()
-	var crop = src.getImageData(sx, sy, getGridSize(), getGridSize())
-	dest.clearRect(dx, dy, getGridSize(), getGridSize())
+	sx = sx*getGridW()
+	sy = sy*getGridH()
+	dx = dx*getGridW()
+	dy = dy*getGridH()
+	var crop = src.getImageData(sx, sy, getGridW(), getGridH())
+	dest.clearRect(dx, dy, getGridW(), getGridH())
 	dest.putImageData(crop, dx, dy+oy)
 }
 var olddata
@@ -163,26 +177,27 @@ var map = {
 }
 var selectTile = (e) => {
 	var outw = document.getElementById('output').width
-	document.getElementById('output').width += 128
+	document.getElementById('output').width += getGridW()
+	document.getElementById('output').height = getGridH()
 	var src = document.getElementById('source').getContext('2d')
 	var out = document.getElementById('output').getContext('2d')
 	var x = e.pageX - e.target.offsetLeft
 	var y = e.pageY - e.target.offsetTop
-	x = Math.floor(x/1024*(getTextureSize()/getGridSize()))
-	y = Math.floor(y/1024*(getTextureSize()/getGridSize()))
-	var crop = src.getImageData(x*getGridSize(), y*getGridSize(), getGridSize(), getGridSize())
+	x = Math.floor(x/1024*(getTextureW()/getGridW()))
+	y = Math.floor(y/1024*(getTextureW()/getTextureH())*(getTextureH()/getGridH()))
+	var crop = src.getImageData(x*getGridW(), y*getGridH(), getGridW(), getGridH())
 	if (olddata) out.putImageData(olddata, 0, 0)
 	out.putImageData(crop, outw, 0)
 	outw = document.getElementById('output').width
-	olddata = out.getImageData(0, 0, outw, getGridSize())
-	sprites.push([x*getGridSize(), y*getGridSize(), x*getGridSize()+getGridSize(), y*getGridSize()+getGridSize()])
+	olddata = out.getImageData(0, 0, outw, getGridH())
+	sprites.push([x*getGridW(), y*getGridH(), x*getGridW()+getGridW(), y*getGridH()+getGridH()])
 	var filename = 'Data/Textures/'+document.getElementById('source').dataset.file
 	var custom_filename = 'custom_'+document.getElementById('source').dataset.file
 	map.image_map[custom_filename] = {}
 	map.image_map[custom_filename][filename] = []
 	sprites.forEach((v, i) => {
 		map.image_map[custom_filename][filename].push({
-			from: [i*getGridSize(), 0, i*getGridSize()+getGridSize(), getGridSize()],
+			from: [i*getGridW(), 0, i*getGridW()+getGridW(), getGridH()],
 			to: v
 		})
 	})
@@ -206,7 +221,10 @@ var save = () => {
 	})
 	download('mod_info.json', document.getElementById('mod').value)
 }
-document.getElementById('gridsize').onblur = function() {
+document.getElementById('gridwidth').onblur = function() {
+	updateTextureSize()
+}
+document.getElementById('gridheight').onblur = function() {
 	updateTextureSize()
 }
 drawGrid('source')
