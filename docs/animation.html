@@ -61,7 +61,7 @@ var textures = {}
 var entities = {}
 var filename = ''
 var used_textures = []
-var colors = ['red', 'green', 'skyblue', 'cyan', 'magenta', 'yellow', 'orange', 'hotpink', 'brown', 'maroon', 'lime', 'olive', 'peach']
+var colors = ['red', 'green', 'skyblue', 'cyan', 'magenta', 'yellow', 'orange', 'hotpink', 'brown', 'maroon', 'lime', 'olive']
 var color = 0
 var overlap = []
 var max_overlap = []
@@ -141,6 +141,13 @@ var drawRect = function(ctx, key, frame, count, tex) {
 	ctx.beginPath()
 
 	ctx.rect(x + m, y + m, w - m*2, h - m*2)
+	var overflow = w
+	while (overflow > getTextureW(tex)) {
+		overflow -= getTextureW(tex)
+		x = 0
+		y += getGridH(tex)
+		ctx.rect(x-100, y + m, overflow - m + 100, h - m*2)
+	}
 	ctx.stroke()
 	for (var i = 0; i < count; i++)
     	overlap[tex][frame+i] = overlap[tex][frame+i] && ++overlap[tex][frame+i] || 1
