@@ -133,14 +133,20 @@ var drawRect = function(ctx, key, frame, count, tex) {
 	ctx.fillStyle = colors[color]
 	ctx.font = "20px monospace";
 	ctx.fontWeight = 400;
-	ctx.fillText(1+1*key, x + kx + 6, y + ky + 20)
+	if (count > 0)
+		ctx.fillText(1+1*key, x + kx + 6, y + ky + 20)
+	else
+		ctx.fillText(1+1*key, getGridW(tex) + x - kx - 26, y + ky + 20)
 
 	ctx.globalAlpha = 0.88
 	ctx.lineWidth = 3
 	ctx.strokeStyle = colors[color]
 	ctx.beginPath()
 
-	ctx.rect(x + m, y + m, w - m*2, h - m*2)
+	if (count > 0)
+		ctx.rect(x + m, y + m, w - m*2, h - m*2)
+	else
+		ctx.rect(getGridW(tex) + x - m, y + m, w + m*2, h - m*2)
 	var overflow = w
 	while (overflow > getTextureW(tex)) {
 		overflow -= getTextureW(tex)
@@ -179,8 +185,8 @@ var drawGrid = function(id, w, h) {
 	document.getElementById('list').innerHTML = ''
 
 	for ([_, ent] of Object.entries(entities)) {
-		if (!used_textures[ent.texture])
-			continue
+		//if (!used_textures[ent.texture])
+		//	continue
 		max_overlap[ent.texture] = []
 		for ([_, anim] of Object.entries(ent.animations)) {
 			for (var i = 0; i < anim.count; i++)
@@ -197,7 +203,7 @@ var drawGrid = function(id, w, h) {
 		out += '<li>' + type + '<ul>'
 		for ([_, anim] of Object.entries(ent.animations)) {
 			var color = drawRect(ctx, anim.key, anim.texture, anim.count, ent.texture)
-			out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (anim.count > 1 ? ' - ' + (anim.texture+anim.count-1) : '') + '</li>'
+			out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
 		}
 		out += '</ul></li>'
 	}
