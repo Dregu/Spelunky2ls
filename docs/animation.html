@@ -56,7 +56,8 @@
 <body>
 	<div id='container'>
 		<h1>Spelunky 2 Animation Thing</h1>
-		<h2>Drop any vanilla texture png here to show all animations in it!</h2>
+		<h2>Drop any vanilla texture png here to show all* animations in it!</h2>
+		<h3><label for='layer'><input id='layer' type='checkbox'> Draw texture and grid on same canvas</label></h3>
 		<div id='flex'>
 			<canvas id='overlay'></canvas>
 			<canvas id='source'></canvas>
@@ -69,6 +70,7 @@
 			</div>
 		</template>
 		<div id='animations'></div>
+		You can Save this image As... and further proccess it through modlunky to generate entity sheets from this animation grid.<br>The bold numbers are Lua api indexes for the entity animations, next the animation_frames they span.<br>*) Some animations and texture definitions are set at runtime, and this tool doesn't know about them. Some animations are also unused.
 	</div>
 	<script>
 		var textures = {}
@@ -130,7 +132,6 @@
 			let arr = [];
 			for (let idx = frame; idx < frame+count; idx++) {
 				var pos = getFramePosByNum(idx, tex)
-				console.log(pos)
 				arr.push(pos);
 			}
 			return arr;
@@ -169,7 +170,6 @@
 			document.getElementById('overlay').height = h
 			document.getElementById('overlay').style.aspectRatio = w+' / '+h
 			document.getElementById('list').style.height = h
-			drawGrid('overlay', w, h)
 		}
 
 		var getGridW = function(tex) {
@@ -239,9 +239,9 @@
 				max_overlap[tex] = []
 			if (!start_overlap[tex])
 				start_overlap[tex] = []
-			var m = overlap[tex][frame] && (4 + overlap[tex][frame] * 4) || 4
-			var kx = (start_overlap[tex][frame] ? start_overlap[tex][frame] * 26 + 6 : 6)
-			var ky = max_overlap[tex][frame] && max_overlap[tex][frame] * 4 || 0
+			var m = (overlap[tex][frame] ? overlap[tex][frame] * 4 + 4 : 4)
+			var kx = (start_overlap[tex][frame] ? start_overlap[tex][frame] * 26 : 0)
+			var ky = (max_overlap[tex][frame] ? max_overlap[tex][frame] * 4 + 4 : 4)
 
 			color = (color + 1) % colors.length
 			ctx.globalAlpha = 1
@@ -249,9 +249,9 @@
 			ctx.font = "20px monospace";
 			ctx.fontWeight = 400;
 			if (count > 0)
-				ctx.fillText(1+1*key, x + kx + 6, y + ky + 20)
+				ctx.fillText(1+1*key, x + kx + 8, y + ky + 20)
 			else
-				ctx.fillText(1+1*key, getGridW(tex) + x - kx - 26, y + ky + 20)
+				ctx.fillText(1+1*key, getGridW(tex) + x - kx - 28, y + ky + 20)
 
 			ctx.globalAlpha = 0.88
 			ctx.lineWidth = 3
@@ -271,8 +271,8 @@
 			}
 			ctx.stroke()
 			for (var i = 0; i < count; i++)
-				overlap[tex][frame+i] = overlap[tex][frame+i] && ++overlap[tex][frame+i] || 1
-			start_overlap[tex][frame] = start_overlap[tex][frame] && ++start_overlap[tex][frame] || 1
+				overlap[tex][frame+i] = overlap[tex][frame+i] ? ++overlap[tex][frame+i] : 1
+			start_overlap[tex][frame] = start_overlap[tex][frame] ? ++start_overlap[tex][frame] : 1
 			return colors[color]
 		}
 
@@ -281,101 +281,93 @@
 			return name[name.length-1]
 		}
 
-		var drawGrid = function(id, w, h) {
-			var grid = document.createElement('canvas')
-			var ctx = grid.getContext('2d')
-			grid.width = w
-			grid.height = h
+		var drawGrid = function(ctx, w, h) {
 			ctx.lineWidth = 2
 
-	/*for (x=0;x<=w;x+=getGridW()) {
-		for (y=0;y<=h;y+=getGridH()) {
-			ctx.moveTo(x, 0)
-			ctx.lineTo(x, h)
-			ctx.stroke()
-			ctx.moveTo(0, y)
-			ctx.lineTo(w, y)
-			ctx.stroke()
-		}
-	}*/
+			overlap = []
+			max_overlap = []
+			start_overlap = []
+			document.getElementById('list').innerHTML = ''
 
-	overlap = []
-	max_overlap = []
-	start_overlap = []
-	document.getElementById('list').innerHTML = ''
+			for (let animation of animations) {
+				clearInterval(animation.interval)
+			}
+			animations = []
+			animationsDiv.innerHTML = ''
 
-	for (let animation of animations) {
-		clearInterval(animation.interval)
-	}
-	animations = []
-	animationsDiv.innerHTML = ''
+			for ([_, ent] of Object.entries(entities)) {
+				if (!used_textures[ent.texture])
+					continue
+				max_overlap[ent.texture] = []
+				for ([_, anim] of Object.entries(ent.animations)) {
+					for (var i = 0; i < anim.count; i++)
+						max_overlap[ent.texture][anim.texture+i] = max_overlap[ent.texture][anim.texture+i] ? ++max_overlap[ent.texture][anim.texture+i] : 1
+				}
+			}
+			var out = '<ul>'
+			for ([type, ent] of Object.entries(entities)) {
+				if (!used_textures[ent.texture])
+					continue
+				if (Object.keys(ent.animations).length == 0)
+					continue
 
-	for ([_, ent] of Object.entries(entities)) {
-		if (!used_textures[ent.texture])
-			continue
-		max_overlap[ent.texture] = []
-		for ([_, anim] of Object.entries(ent.animations)) {
-			for (var i = 0; i < anim.count; i++)
-				max_overlap[ent.texture][anim.texture+i] = max_overlap[ent.texture][anim.texture+i] && ++max_overlap[ent.texture][anim.texture+i] || 1
-		}
-	}
-	var out = '<ul>'
-	for ([type, ent] of Object.entries(entities)) {
-		if (!used_textures[ent.texture])
-			continue
-		if (Object.keys(ent.animations).length == 0)
-			continue
+				out += '<li>' + type + ' (' + ent.texture + ')<ul>'
+				for ([_, anim] of Object.entries(ent.animations)) {
+					var real_texture = fixTexture(type, anim, ent.texture)
+					var pos = getFramePosByNum(anim.texture, real_texture)
+					var color = drawRect(ctx, anim.key, anim.texture, anim.count, real_texture)
+					if (anim.count > 1)
+						animations.push(new Animation(real_texture, (""+formatType(type)+"/"+(anim.key+1)), color, anim.interval, anim.texture, anim.count))
+					out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
+				}
+				out += '</ul></li>'
+			}
+			out += '</ul>'
+			document.getElementById('list').innerHTML = out
 
-		out += '<li>' + type + ' (' + ent.texture + ')<ul>'
-		for ([_, anim] of Object.entries(ent.animations)) {
-			var real_texture = fixTexture(type, anim, ent.texture)
-			var pos = getFramePosByNum(anim.texture, real_texture)
-			var color = drawRect(ctx, anim.key, anim.texture, anim.count, real_texture)
-			if (anim.count > 1)
-				animations.push(new Animation(real_texture, (""+formatType(type)+"/"+(anim.key+1)), color, anim.interval, anim.texture, anim.count))
-			out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
-		}
-		out += '</ul></li>'
-	}
-	out += '</ul>'
-	document.getElementById('list').innerHTML = out
-	document.getElementById(id).style.backgroundImage = 'url('+grid.toDataURL()+')'
-
-	for (let animation of animations) {
-		animation.start()
-	}
-}
-
-var dropHandler = (e) => {
-	e.preventDefault()
-	if (e.dataTransfer.items) {
-		for (var i = 0; i < e.dataTransfer.items.length; i++) {
-			if (e.dataTransfer.items[i].kind === 'file') {
-				var file = e.dataTransfer.items[i].getAsFile()
-				filename = file.name.replace('.png', '.DDS')
-				getTexture()
-				var reader = new FileReader()
-				reader.onload = (() => {
-					return (f) => {
-						image.src = f.target.result
-						image.onload = () => {
-							var canvas = document.getElementById('source')
-							setTextureSize(image.width, image.height)
-							var ctx = canvas.getContext('2d')
-							ctx.clearRect(0, 0, canvas.width, canvas.height);
-							ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height)
-						}
-					}
-				})(e.target)
-				reader.readAsDataURL(file)
+			for (let animation of animations) {
+				animation.start()
 			}
 		}
-	}
-}
-var dragOverHandler = (e) => {
-	e.preventDefault()
-}
-loadJsonFiles()
-</script>
+
+		var dropHandler = (e) => {
+			e.preventDefault()
+			if (e.dataTransfer.items) {
+				for (var i = 0; i < e.dataTransfer.items.length; i++) {
+					if (e.dataTransfer.items[i].kind === 'file') {
+						var file = e.dataTransfer.items[i].getAsFile()
+						filename = file.name.replace('.png', '.DDS')
+						getTexture()
+						var reader = new FileReader()
+						reader.onload = (() => {
+							return (f) => {
+								image.src = f.target.result
+								image.onload = () => {
+									var id = 'source'
+									if (document.getElementById('layer').checked)
+										var id = 'overlay'
+									var canvas = document.getElementById(id)
+									setTextureSize(image.width, image.height)
+									var ctx = canvas.getContext('2d')
+									ctx.clearRect(0, 0, canvas.width, canvas.height);
+									ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height)
+									if (!document.getElementById('layer').checked) {
+										canvas = document.getElementById('overlay')
+										ctx = canvas.getContext('2d')
+									}
+									drawGrid(ctx, image.width, image.height)
+								}
+							}
+						})(e.target)
+						reader.readAsDataURL(file)
+					}
+				}
+			}
+		}
+		var dragOverHandler = (e) => {
+			e.preventDefault()
+		}
+		loadJsonFiles()
+	</script>
 </body>
 </html>
