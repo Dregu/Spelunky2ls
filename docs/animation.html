@@ -1,172 +1,292 @@
 <!DOCTYPE html>
 <html ondrop='dropHandler(event)' ondragover='dragOverHandler(event)'>
 <head>
-<title>Spelunky 2 Animation Thing</title>
-<style>
-body {
-	background: #222;
-	font-family: Segoe UI, sans-serif;
-	color: #eee;
-	display: flex;
-	flex-basis: flex-start;
-	align-items: center;
-}
-h1,h2 {
-	text-align: center;
-}
-#container {
-	margin: 0 auto;
-	position: relative;
-}
+	<title>Spelunky 2 Animation Thing</title>
+	<style>
+	body {
+		background: #222;
+		font-family: Segoe UI, sans-serif;
+		color: #eee;
+		display: flex;
+		flex-basis: flex-start;
+		align-items: center;
+	}
+	h1,h2 {
+		text-align: center;
+	}
+	#container {
+		margin: 0 auto;
+		position: relative;
+	}
 
-#source {
-	margin: 0 auto;
-	width: 1024px;
-	aspect-ratio: 1 / 1;
-	border: 1px solid rgba(255,255,255,0.5);
-	background-size: 100% 100%;
-}
-#overlay {
-	position: absolute;
-	width: 1024px;
-	aspect-ratio: 1 / 1;
-	border: 1px solid rgba(255,255,255,0.5);
-	background-size: 100% 100%;
-}
-#list {
-	display: inline-block;
-	height: 1024px;
-	overflow: scroll;
-	font-size: 13px;
-	max-height: 1024px;
-}
-ul {
-	padding-left: 10px;
-}
+	#source {
+		margin: 0 auto;
+		width: 1024px;
+		aspect-ratio: 1 / 1;
+		border: 1px solid rgba(255,255,255,0.5);
+		background-size: 100% 100%;
+	}
+	#overlay {
+		position: absolute;
+		width: 1024px;
+		aspect-ratio: 1 / 1;
+		border: 1px solid rgba(255,255,255,0.5);
+		background-size: 100% 100%;
+	}
+	#list {
+		display: inline-block;
+		height: 1024px;
+		overflow: scroll;
+		font-size: 13px;
+		max-height: 1024px;
+	}
+	ul {
+		padding-left: 10px;
+	}
+	.sprite {
+		display: inline-block;
+		font-size: 10px;
+	}
+	.sprite-canvas {
+		border: 2px solid black;
+	}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
 </head>
 <body>
-<div id='container'>
-<h1>Spelunky 2 Animation Thing</h1>
-<h2>Just drop any vanilla texture png here to show all animations in it!</h2>
-<div id='flex'>
-<canvas id='overlay'></canvas>
-<canvas id='source'></canvas>
-<div id='list'></div>
-</div>
-</div>
-<script>
-var textures = {}
-var entities = {}
-var filename = ''
-var used_textures = []
-var colors = ['red', 'green', 'skyblue', 'cyan', 'magenta', 'yellow', 'orange', 'hotpink', 'brown', 'maroon', 'lime', 'olive']
-var color = 0
-var overlap = []
-var max_overlap = []
-var start_overlap = []
+	<div id='container'>
+		<h1>Spelunky 2 Animation Thing</h1>
+		<h2>Drop any vanilla texture png here to show all animations in it!</h2>
+		<div id='flex'>
+			<canvas id='overlay'></canvas>
+			<canvas id='source'></canvas>
+			<div id='list'></div>
+		</div>
+		<template id="sprite-template">
+			<div class='sprite'>
+				<div class="sprite-title"></div>
+				<canvas class="sprite-canvas" width="128" height="128"></canvas>
+			</div>
+		</template>
+		<div id='animations'></div>
+	</div>
+	<script>
+		var textures = {}
+		var entities = {}
+		var filename = ''
+		var used_textures = []
+		var colors = ['red', 'green', 'skyblue', 'cyan', 'magenta', 'yellow', 'orange', 'hotpink', 'brown', 'maroon', 'lime', 'olive']
+		var color = 0
+		var overlap = []
+		var max_overlap = []
+		var start_overlap = []
 
-var loadJsonFiles = () => {
-	fetch('textures.json')
-  		.then(response => response.json())
-  		.then(json => textures = json)
-  	fetch('entities.json')
-  		.then(response => response.json())
-  		.then(json => entities = json)
-}
+		const tickMs = 32;
+		const spriteTemplate = document.getElementById('sprite-template');
+		const animationsDiv = document.getElementById('animations');
+		var animations = []
+		var image = new Image()
+		const baseWidth = 2048;
 
-var getTexture = () => {
-	used_textures = []
-	for ([k, tex] of Object.entries(textures)) {
-		if (tex.path.match("/"+filename)) {
-			used_textures[k] = tex
+		var fixes = {
+			"ENT_TYPE_MONS_ANUBIS": {
+				"1": 316,
+				"20": 316
+			},
+			"ENT_TYPE_MOUNT_MECH": {
+				"1": 345,
+				"4": 345,
+				"6": 345,
+				"11": 346,
+				"23": 345
+			}
 		}
-	}
-}
 
-var setTextureSize = function(w, h) {
-	document.getElementById('source').width = w
-	document.getElementById('source').height = h
-	document.getElementById('source').style.aspectRatio = w+' / '+h
-	document.getElementById('overlay').width = w
-	document.getElementById('overlay').height = h
-	document.getElementById('overlay').style.aspectRatio = w+' / '+h
-	document.getElementById('list').style.height = h
-	drawGrid('overlay', w, h)
-}
+		var loadJsonFiles = () => {
+			fetch('textures.json')
+			.then(response => response.json())
+			.then(json => textures = json)
+			fetch('entities.json')
+			.then(response => response.json())
+			.then(json => entities = json)
+		}
 
-var getGridW = function(tex) {
-	return textures[tex].tile_width
-}
+		document.scaleDimension = function (int) {
+			if (image.width == baseWidth) {
+				return int
+			}
 
-var getGridH = function(tex) {
-	return textures[tex].tile_height
-}
+			multiplier = image.width / baseWidth;
+			return int * multiplier;
+		}
 
-var getTextureW = function(tex) {
-	return textures[tex].width
-}
+		function getFramePosByNum(num, tex) {
+			const x = (num % textures[tex].num_tiles.width)
+			const y = Math.floor(num / textures[tex].num_tiles.width)
+			return [x, y];
+		}
 
-var getTextureH = function(tex) {
-	return textures[tex].height
-}
+		function getFramePositions(tex, frame, count) {
+			let arr = [];
+			for (let idx = frame; idx < frame+count; idx++) {
+				var pos = getFramePosByNum(idx, tex)
+				console.log(pos)
+				arr.push(pos);
+			}
+			return arr;
+		}
 
-var drawRect = function(ctx, key, frame, count, tex) {
-	var x = textures[tex].offset.width + getGridW(tex) * (frame % textures[tex].num_tiles.width)
-	var y = textures[tex].offset.height + getGridH(tex) * Math.floor(frame / textures[tex].num_tiles.width)
-	var w = getGridW(tex) * count
-	var h = getGridH(tex)
+		function getFrameCoordByNum(num, tex) {
+			const x = (num % textures[tex].num_tiles.width) * textures[tex].tile_width;
+			const y = Math.floor(num / textures[tex].num_tiles.width) * textures[tex].tile_height;
+			return [x, y];
+		}
 
-	if (!overlap[tex])
-		overlap[tex] = []
-	if (!max_overlap[tex])
-		max_overlap[tex] = []
-	if (!start_overlap[tex])
-		start_overlap[tex] = []
-	var m = overlap[tex][frame] && (4 + overlap[tex][frame] * 4) || 4
-	var kx = (start_overlap[tex][frame] ? start_overlap[tex][frame] * 26 + 6 : 6)
-	var ky = max_overlap[tex][frame] && max_overlap[tex][frame] * 4 || 0
+		var getTexture = () => {
+			used_textures = []
+			entities["ENT_TYPE_ITEM_PLAYERGHOST"].texture = 285
+			for ([k, tex] of Object.entries(textures)) {
+				if (tex.path.match("/"+filename)) {
+					used_textures[k] = tex
+					if (filename.match("char_")) {
+						entities["ENT_TYPE_ITEM_PLAYERGHOST"].texture = k
+					}
+				}
+			}
+		}
 
-   	color = (color + 1) % colors.length
-	ctx.globalAlpha = 1
-	ctx.fillStyle = colors[color]
-	ctx.font = "20px monospace";
-	ctx.fontWeight = 400;
-	if (count > 0)
-		ctx.fillText(1+1*key, x + kx + 6, y + ky + 20)
-	else
-		ctx.fillText(1+1*key, getGridW(tex) + x - kx - 26, y + ky + 20)
+		var fixTexture = (type, anim, tex) => {
+			if (fixes[type] && fixes[type][anim.key+1])
+				return fixes[type][anim.key+1]
+			return tex
+		}
 
-	ctx.globalAlpha = 0.88
-	ctx.lineWidth = 3
-	ctx.strokeStyle = colors[color]
-	ctx.beginPath()
+		var setTextureSize = function(w, h) {
+			document.getElementById('source').width = w
+			document.getElementById('source').height = h
+			document.getElementById('source').style.aspectRatio = w+' / '+h
+			document.getElementById('overlay').width = w
+			document.getElementById('overlay').height = h
+			document.getElementById('overlay').style.aspectRatio = w+' / '+h
+			document.getElementById('list').style.height = h
+			drawGrid('overlay', w, h)
+		}
 
-	if (count > 0)
-		ctx.rect(x + m, y + m, w - m*2, h - m*2)
-	else
-		ctx.rect(getGridW(tex) + x - m, y + m, w + m*2, h - m*2)
-	var overflow = w
-	while (overflow > getTextureW(tex)) {
-		overflow -= getTextureW(tex)
-		x = 0
-		y += getGridH(tex)
-		ctx.rect(x-100, y + m, overflow - m + 100, h - m*2)
-	}
-	ctx.stroke()
-	for (var i = 0; i < count; i++)
-    	overlap[tex][frame+i] = overlap[tex][frame+i] && ++overlap[tex][frame+i] || 1
-    start_overlap[tex][frame] = start_overlap[tex][frame] && ++start_overlap[tex][frame] || 1
-   	return colors[color]
-}
+		var getGridW = function(tex) {
+			return textures[tex].tile_width
+		}
 
-var drawGrid = function(id, w, h) {
-	var grid = document.createElement('canvas')
-	var ctx = grid.getContext('2d')
-	grid.width = w
-	grid.height = h
-	ctx.lineWidth = 2
+		var getGridH = function(tex) {
+			return textures[tex].tile_height
+		}
+
+		var getTextureW = function(tex) {
+			return textures[tex].width
+		}
+
+		var getTextureH = function(tex) {
+			return textures[tex].height
+		}
+
+		class Animation {
+			constructor(tex, title, color, delay, frame, count) {
+
+				let clone = spriteTemplate.content.cloneNode(true);
+				clone.querySelectorAll(".sprite-title")[0].textContent = `${title}:`;
+				let canvas = clone.querySelectorAll(".sprite-canvas")[0];
+				canvas.style.borderColor = color;
+				canvas.width = getGridW(tex)
+				canvas.height = getGridH(tex)
+				animationsDiv.appendChild(clone);
+
+
+				this.ctx = canvas.getContext('2d');
+				this.frame = 0;
+				this.interval = null;
+				this.frames = getFramePositions(tex, frame, count);
+				this.texture = tex;
+				this.delay = delay;
+			}
+
+			start() {
+				this.interval = setInterval(() => {
+					let frame_idx = this.frame % this.frames.length;
+					let [x, y] = this.frames[frame_idx];
+
+					this.ctx.clearRect(0, 0, getGridW(this.texture), getGridH(this.texture));
+					this.ctx.drawImage(
+						image,
+						textures[this.texture].offset.width + x * getGridW(this.texture),
+						textures[this.texture].offset.height + y * getGridH(this.texture),
+						getGridW(this.texture),
+						getGridH(this.texture),
+						0, 0, getGridW(this.texture), getGridH(this.texture)
+						);
+					this.frame += 1;
+				}, tickMs * this.delay);
+			}
+		}
+
+		var drawRect = function(ctx, key, frame, count, tex) {
+			var x = textures[tex].offset.width + getGridW(tex) * (frame % textures[tex].num_tiles.width)
+			var y = textures[tex].offset.height + getGridH(tex) * Math.floor(frame / textures[tex].num_tiles.width)
+			var w = getGridW(tex) * count
+			var h = getGridH(tex)
+
+			if (!overlap[tex])
+				overlap[tex] = []
+			if (!max_overlap[tex])
+				max_overlap[tex] = []
+			if (!start_overlap[tex])
+				start_overlap[tex] = []
+			var m = overlap[tex][frame] && (4 + overlap[tex][frame] * 4) || 4
+			var kx = (start_overlap[tex][frame] ? start_overlap[tex][frame] * 26 + 6 : 6)
+			var ky = max_overlap[tex][frame] && max_overlap[tex][frame] * 4 || 0
+
+			color = (color + 1) % colors.length
+			ctx.globalAlpha = 1
+			ctx.fillStyle = colors[color]
+			ctx.font = "20px monospace";
+			ctx.fontWeight = 400;
+			if (count > 0)
+				ctx.fillText(1+1*key, x + kx + 6, y + ky + 20)
+			else
+				ctx.fillText(1+1*key, getGridW(tex) + x - kx - 26, y + ky + 20)
+
+			ctx.globalAlpha = 0.88
+			ctx.lineWidth = 3
+			ctx.strokeStyle = colors[color]
+			ctx.beginPath()
+
+			if (count > 0)
+				ctx.rect(x + m, y + m, w - m*2, h - m*2)
+			else
+				ctx.rect(getGridW(tex) + x - m, y + m, w + m*2, h - m*2)
+			var overflow = w
+			while (overflow > getTextureW(tex)) {
+				overflow -= getTextureW(tex)
+				x = 0
+				y += getGridH(tex)
+				ctx.rect(x-100, y + m, overflow - m + 100, h - m*2)
+			}
+			ctx.stroke()
+			for (var i = 0; i < count; i++)
+				overlap[tex][frame+i] = overlap[tex][frame+i] && ++overlap[tex][frame+i] || 1
+			start_overlap[tex][frame] = start_overlap[tex][frame] && ++start_overlap[tex][frame] || 1
+			return colors[color]
+		}
+
+		var formatType = (name) => {
+			name = name.split('_')
+			return name[name.length-1]
+		}
+
+		var drawGrid = function(id, w, h) {
+			var grid = document.createElement('canvas')
+			var ctx = grid.getContext('2d')
+			grid.width = w
+			grid.height = h
+			ctx.lineWidth = 2
 
 	/*for (x=0;x<=w;x+=getGridW()) {
 		for (y=0;y<=h;y+=getGridH()) {
@@ -184,9 +304,15 @@ var drawGrid = function(id, w, h) {
 	start_overlap = []
 	document.getElementById('list').innerHTML = ''
 
+	for (let animation of animations) {
+		clearInterval(animation.interval)
+	}
+	animations = []
+	animationsDiv.innerHTML = ''
+
 	for ([_, ent] of Object.entries(entities)) {
-		//if (!used_textures[ent.texture])
-		//	continue
+		if (!used_textures[ent.texture])
+			continue
 		max_overlap[ent.texture] = []
 		for ([_, anim] of Object.entries(ent.animations)) {
 			for (var i = 0; i < anim.count; i++)
@@ -200,9 +326,13 @@ var drawGrid = function(id, w, h) {
 		if (Object.keys(ent.animations).length == 0)
 			continue
 
-		out += '<li>' + type + '<ul>'
+		out += '<li>' + type + ' (' + ent.texture + ')<ul>'
 		for ([_, anim] of Object.entries(ent.animations)) {
-			var color = drawRect(ctx, anim.key, anim.texture, anim.count, ent.texture)
+			var real_texture = fixTexture(type, anim, ent.texture)
+			var pos = getFramePosByNum(anim.texture, real_texture)
+			var color = drawRect(ctx, anim.key, anim.texture, anim.count, real_texture)
+			if (anim.count > 1)
+				animations.push(new Animation(real_texture, (""+formatType(type)+"/"+(anim.key+1)), color, anim.interval, anim.texture, anim.count))
 			out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
 		}
 		out += '</ul></li>'
@@ -210,6 +340,10 @@ var drawGrid = function(id, w, h) {
 	out += '</ul>'
 	document.getElementById('list').innerHTML = out
 	document.getElementById(id).style.backgroundImage = 'url('+grid.toDataURL()+')'
+
+	for (let animation of animations) {
+		animation.start()
+	}
 }
 
 var dropHandler = (e) => {
@@ -221,10 +355,8 @@ var dropHandler = (e) => {
 				filename = file.name.replace('.png', '.DDS')
 				getTexture()
 				var reader = new FileReader()
-				var image = new Image()
 				reader.onload = (() => {
 					return (f) => {
-						var image = new Image()
 						image.src = f.target.result
 						image.onload = () => {
 							var canvas = document.getElementById('source')
