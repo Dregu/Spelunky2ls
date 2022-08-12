@@ -60,8 +60,7 @@ ul {
 var textures = {}
 var entities = {}
 var filename = ''
-var texture = {}
-var textureid = 0
+var used_textures = []
 var colors = ['red', 'green', 'skyblue', 'cyan', 'magenta', 'yellow', 'orange', 'hotpink', 'brown']
 var color = 0
 var overlap = []
@@ -78,10 +77,10 @@ var loadJsonFiles = () => {
 }
 
 var getTexture = () => {
+	used_textures = []
 	for ([k, tex] of Object.entries(textures)) {
 		if (tex.path.match("/"+filename)) {
-			textureid = k
-			texture = tex
+			used_textures[k] = tex
 		}
 	}
 }
@@ -94,34 +93,40 @@ var setTextureSize = function(w, h) {
 	document.getElementById('overlay').height = h
 	document.getElementById('overlay').style.aspectRatio = w+' / '+h
 	document.getElementById('list').style.height = h
-	drawGrid('overlay')
+	drawGrid('overlay', w, h)
 }
 
-var getGridW = function() {
-	return texture.tile_width
+var getGridW = function(tex) {
+	return textures[tex].tile_width
 }
 
-var getGridH = function() {
-	return texture.tile_height
+var getGridH = function(tex) {
+	return textures[tex].tile_height
 }
 
-var getTextureW = function() {
-	return texture.width
+var getTextureW = function(tex) {
+	return textures[tex].width
 }
 
-var getTextureH = function() {
-	return texture.height
+var getTextureH = function(tex) {
+	return textures[tex].height
 }
 
-var drawRect = function(ctx, key, frame, count) {
-	var x = texture.offset.width + getGridW() * (frame % texture.num_tiles.width)
-	var y = texture.offset.height + getGridH() * Math.floor(frame / texture.num_tiles.width)
-	var w = getGridW() * count
-	var h = getGridH()
+var drawRect = function(ctx, key, frame, count, tex) {
+	var x = textures[tex].offset.width + getGridW(tex) * (frame % textures[tex].num_tiles.width)
+	var y = textures[tex].offset.height + getGridH(tex) * Math.floor(frame / textures[tex].num_tiles.width)
+	var w = getGridW(tex) * count
+	var h = getGridH(tex)
 
-	var m = overlap[frame] && (4 + overlap[frame] * 4) || 4
-	var kx = (start_overlap[frame] ? start_overlap[frame] * 26 + 6 : 6)
-	var ky = max_overlap[frame] && max_overlap[frame] * 4 || 0
+	if (!overlap[tex])
+		overlap[tex] = []
+	if (!max_overlap[tex])
+		max_overlap[tex] = []
+	if (!start_overlap[tex])
+		start_overlap[tex] = []
+	var m = overlap[tex][frame] && (4 + overlap[tex][frame] * 4) || 4
+	var kx = (start_overlap[tex][frame] ? start_overlap[tex][frame] * 26 + 6 : 6)
+	var ky = max_overlap[tex][frame] && max_overlap[tex][frame] * 4 || 0
 
    	color = (color + 1) % colors.length
 	ctx.globalAlpha = 1
@@ -138,13 +143,12 @@ var drawRect = function(ctx, key, frame, count) {
 	ctx.rect(x + m, y + m, w - m*2, h - m*2)
 	ctx.stroke()
 	for (var i = 0; i < count; i++)
-    	overlap[frame+i] = overlap[frame+i] && ++overlap[frame+i] || 1
-    start_overlap[frame] = start_overlap[frame] && ++start_overlap[frame] || 1
+    	overlap[tex][frame+i] = overlap[tex][frame+i] && ++overlap[tex][frame+i] || 1
+    start_overlap[tex][frame] = start_overlap[tex][frame] && ++start_overlap[tex][frame] || 1
    	return colors[color]
 }
 
-var drawGrid = function(id) {
-	const w = getTextureW(), h = getTextureH()
+var drawGrid = function(id, w, h) {
 	var grid = document.createElement('canvas')
 	var ctx = grid.getContext('2d')
 	grid.width = w
@@ -168,22 +172,24 @@ var drawGrid = function(id) {
 	document.getElementById('list').innerHTML = ''
 
 	for ([_, ent] of Object.entries(entities)) {
-		if (ent.texture != textureid) continue
+		if (!used_textures[ent.texture])
+			continue
+		max_overlap[ent.texture] = []
 		for ([_, anim] of Object.entries(ent.animations)) {
 			for (var i = 0; i < anim.count; i++)
-				max_overlap[anim.texture+i] = max_overlap[anim.texture+i] && ++max_overlap[anim.texture+i] || 1
+				max_overlap[ent.texture][anim.texture+i] = max_overlap[ent.texture][anim.texture+i] && ++max_overlap[ent.texture][anim.texture+i] || 1
 		}
 	}
 	var out = '<ul>'
 	for ([type, ent] of Object.entries(entities)) {
-		if (ent.texture != textureid)
+		if (!used_textures[ent.texture])
 			continue
 		if (Object.keys(ent.animations).length == 0)
 			continue
 
 		out += '<li>' + type + '<ul>'
 		for ([_, anim] of Object.entries(ent.animations)) {
-			var color = drawRect(ctx, anim.key, anim.texture, anim.count)
+			var color = drawRect(ctx, anim.key, anim.texture, anim.count, ent.texture)
 			out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (anim.count > 1 ? ' - ' + (anim.texture+anim.count-1) : '') + '</li>'
 		}
 		out += '</ul></li>'
@@ -211,8 +217,8 @@ var dropHandler = (e) => {
 							var canvas = document.getElementById('source')
 							setTextureSize(image.width, image.height)
 							var ctx = canvas.getContext('2d')
-							ctx.clearRect(0, 0, getTextureW(), getTextureH());
-							ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, getTextureW(), getTextureH())
+							ctx.clearRect(0, 0, canvas.width, canvas.height);
+							ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height)
 						}
 					}
 				})(e.target)
