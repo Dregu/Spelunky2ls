@@ -318,7 +318,7 @@
 					var color = drawRect(ctx, anim.key, anim.texture, anim.count, real_texture)
 					if (anim.count > 1)
 						animations.push(new Animation(real_texture, (""+formatType(type)+"/"+(anim.key)), color, anim.interval, anim.texture, anim.count))
-					out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
+					out += '<li style="color: ' + color + '"><strong>' + anim.key + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
 				}
 				out += '</ul></li>'
 			}
