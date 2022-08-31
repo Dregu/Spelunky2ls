@@ -157,8 +157,8 @@
 		}
 
 		var fixTexture = (type, anim, tex) => {
-			if (fixes[type] && fixes[type][anim.key+1])
-				return fixes[type][anim.key+1]
+			if (fixes[type] && fixes[type][anim.key])
+				return fixes[type][anim.key]
 			return tex
 		}
 
@@ -249,9 +249,9 @@
 			ctx.font = "20px monospace";
 			ctx.fontWeight = 400;
 			if (count > 0)
-				ctx.fillText(1+1*key, x + kx + 8, y + ky + 20)
+				ctx.fillText(1*key, x + kx + 8, y + ky + 20)
 			else
-				ctx.fillText(1+1*key, getGridW(tex) + x - kx - 28, y + ky + 20)
+				ctx.fillText(1*key, getGridW(tex) + x - kx - 28, y + ky + 20)
 
 			ctx.globalAlpha = 0.88
 			ctx.lineWidth = 3
@@ -317,7 +317,7 @@
 					var pos = getFramePosByNum(anim.texture, real_texture)
 					var color = drawRect(ctx, anim.key, anim.texture, anim.count, real_texture)
 					if (anim.count > 1)
-						animations.push(new Animation(real_texture, (""+formatType(type)+"/"+(anim.key+1)), color, anim.interval, anim.texture, anim.count))
+						animations.push(new Animation(real_texture, (""+formatType(type)+"/"+(anim.key)), color, anim.interval, anim.texture, anim.count))
 					out += '<li style="color: ' + color + '"><strong>' + (1*anim.key + 1) + '</strong>, ' + anim.texture + (Math.abs(anim.count) != 1 ? ' - ' + (anim.texture+anim.count+(anim.count > 0 ? -1 : 1)) : '') + '</li>'
 				}
 				out += '</ul></li>'
